@@ -1,0 +1,226 @@
+using System.Data.SqlClient;
+using System.Net;
+using System.Text.Json;
+using TradingApp.Attributes.Http;
+using TradingApp.Controllers.Base;
+using Dapper;
+using TradingApp.Extensions;
+using TradingApp.Models;
+
+namespace TradingApp.Controllers;
+
+public class StockController : ControllerBase
+{
+    private const string connectionString = "Server=localhost;Database=TradingAppDb;User Id=sa;Password=Tomik2008;";
+
+    [HttpGet("GetAll")]
+    public async Task GetStocksAsync(HttpListenerContext context)
+    {
+        using var writer = new StreamWriter(context.Response.OutputStream);
+
+        using var connection = new SqlConnection(connectionString);
+        var stocks = await connection.QueryAsync<Stock>("select * from Stocks");
+
+        var stocksHtml = stocks.GetHtml();
+        await writer.WriteLineAsync(stocksHtml);
+        context.Response.ContentType = "text/html";
+
+        context.Response.StatusCode = (int)HttpStatusCode.OK;
+    }
+
+    [HttpGet("GetById")]
+    public async Task GetStockByIdAsync(HttpListenerContext context)
+    {
+        var stockIdToGetObj = context.Request.QueryString["id"];
+
+        if (stockIdToGetObj == null || int.TryParse(stockIdToGetObj, out int stockIdToGet) == false)
+        {
+            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return;
+        }
+
+        using var connection = new SqlConnection(connectionString);
+        var stock = await connection.QueryFirstOrDefaultAsync<Stock>(
+            sql: "select top 1 * from Stocks where Id = @Id",
+            param: new { Id = stockIdToGet });
+
+        if (stock is null)
+        {
+            context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+            return;
+        }
+
+        using var writer = new StreamWriter(context.Response.OutputStream);
+        await writer.WriteLineAsync(JsonSerializer.Serialize(stock));
+
+        context.Response.ContentType = "application/json";
+        context.Response.StatusCode = (int)HttpStatusCode.OK;
+    }
+
+    [HttpGet("SearchByName")]
+    public async Task GetStockByNameAsync(HttpListenerContext context)
+    {
+        var stockNameToGetObj = context.Request.QueryString["name"];
+
+        if (stockNameToGetObj == null)
+        {
+            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return;
+        }
+
+        using var connection = new SqlConnection(connectionString);
+        var stocks = await connection.QueryAsync<Stock>(
+            sql: $"select * from Stocks where Name like '%{stockNameToGetObj}%'"
+        );
+
+        if (stocks is null)
+        {
+            context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+            return;
+        }
+
+        using var writer = new StreamWriter(context.Response.OutputStream);
+        await writer.WriteLineAsync(JsonSerializer.Serialize(stocks));
+
+        context.Response.ContentType = "application/json";
+        context.Response.StatusCode = (int)HttpStatusCode.OK;
+    }
+
+    [HttpGet("SearchBySymbol")]
+    public async Task GetStockBySymbolAsync(HttpListenerContext context)
+    {
+        var stockSymbolToGetObj = context.Request.QueryString["symbol"];
+
+        if (stockSymbolToGetObj == null)
+        {
+            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return;
+        }
+
+        using var connection = new SqlConnection(connectionString);
+        var stocks = await connection.QueryAsync<Stock>(
+            sql: $"select * from Stocks where Symbol like '%{stockSymbolToGetObj}%'"
+        );
+
+        if (stocks is null)
+        {
+            context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+            return;
+        }
+
+        using var writer = new StreamWriter(context.Response.OutputStream);
+        await writer.WriteLineAsync(JsonSerializer.Serialize(stocks));
+
+        context.Response.ContentType = "application/json";
+        context.Response.StatusCode = (int)HttpStatusCode.OK;
+    }
+
+    [HttpPost("Create")]
+    public async Task PostStockAsync(HttpListenerContext context)
+    {
+        using var reader = new StreamReader(context.Request.InputStream);
+        var json = await reader.ReadToEndAsync();
+
+        var newStock = JsonSerializer.Deserialize<Stock>(json);
+
+        if (newStock == null
+        || string.IsNullOrWhiteSpace(newStock.MarketCap)
+        || string.IsNullOrWhiteSpace(newStock.Name)
+        || string.IsNullOrWhiteSpace(newStock.Symbol)
+        )
+        {
+            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return;
+        }
+
+        using var connection = new SqlConnection(connectionString);
+        var stocks = await connection.ExecuteAsync(
+            @"insert into Stocks (Symbol, Name, MarketCap) 
+        values(@Symbol, @Name, @MarketCap)",
+            param: new
+            {
+                newStock.Symbol,
+                newStock.Name,
+                newStock.MarketCap,
+            });
+
+        context.Response.StatusCode = (int)HttpStatusCode.Created;
+    }
+
+    [HttpDelete]
+    public async Task DeleteStockAsync(HttpListenerContext context)
+    {
+        var stockIdToDeleteObj = context.Request.QueryString["id"];
+
+        if (stockIdToDeleteObj == null || int.TryParse(stockIdToDeleteObj, out int stockIdToDelete) == false)
+        {
+            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return;
+        }
+
+        using var connection = new SqlConnection(connectionString);
+        var deletedRowsCount = await connection.ExecuteAsync(
+            @"delete Stocks
+        where Id = @Id",
+            param: new
+            {
+                Id = stockIdToDelete,
+            });
+
+        if (deletedRowsCount == 0)
+        {
+            context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+            return;
+        }
+
+        context.Response.StatusCode = (int)HttpStatusCode.OK;
+    }
+
+    [HttpPut]
+    public async Task PutStockAsync(HttpListenerContext context)
+    {
+        var stockIdToUpdateObj = context.Request.QueryString["id"];
+
+        if (stockIdToUpdateObj == null || int.TryParse(stockIdToUpdateObj, out int stockIdToUpdate) == false)
+        {
+            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return;
+        }
+
+        using var reader = new StreamReader(context.Request.InputStream);
+        var json = await reader.ReadToEndAsync();
+
+        var stockToUpdate = JsonSerializer.Deserialize<Stock>(json);
+
+        if (stockToUpdate == null
+        || string.IsNullOrWhiteSpace(stockToUpdate.MarketCap)
+        || string.IsNullOrWhiteSpace(stockToUpdate.Name)
+        || string.IsNullOrWhiteSpace(stockToUpdate.Symbol)
+        )
+        {
+            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return;
+        }
+
+        using var connection = new SqlConnection(connectionString);
+        var affectedRowsCount = await connection.ExecuteAsync(
+            @"update Stocks
+        set Symbol = @Symbol, Name = @Name, MarketCap = @MarketCap
+        where Id = @Id",
+            param: new
+            {
+                stockToUpdate.Symbol,
+                stockToUpdate.Name,
+                stockToUpdate.MarketCap,
+                Id = stockIdToUpdate
+            });
+
+        if (affectedRowsCount == 0)
+        {
+            context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+            return;
+        }
+
+        context.Response.StatusCode = (int)HttpStatusCode.OK;
+    }
+}

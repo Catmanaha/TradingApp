@@ -1,6 +1,6 @@
-using AkhshamBazari.Attributes.Http.Base;
+using TradingApp.Attributes.Http.Base;
 
-namespace AkhshamBazari.Attributes.Http;
+namespace TradingApp.Attributes.Http;
 
 public class HttpGetAttribute : HttpAttribute
 {
