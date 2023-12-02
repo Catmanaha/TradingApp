@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Extensions;
+namespace TradingApp.Extensions;
 
 public static class EnumerableExtensions
 {

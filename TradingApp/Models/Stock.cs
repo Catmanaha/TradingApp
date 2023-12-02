@@ -1,4 +1,4 @@
-namespace Models;
+namespace TradingApp.Models;
 
 public class Stock
 {

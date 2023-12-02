@@ -1,4 +1,4 @@
-namespace AkhshamBazari.Attributes.Http.Base;
+namespace TradingApp.Attributes.Http.Base;
 
 public abstract class HttpAttribute : Attribute
 {
