@@ -1,17 +1,20 @@
-using System.Net;
-using TradingApp.Controllers.Base;
+﻿using System.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
+using TradingApp.Models;
 
 namespace TradingApp.Controllers;
 
-public class HomeController : ControllerBase
+public class HomeController : Controller
 {
-    public async Task HomePageAsync(HttpListenerContext context)
+    public IActionResult Index()
     {
-        using var writer = new StreamWriter(context.Response.OutputStream);
+        return View();
+    }
 
-        var pageHtml = await File.ReadAllTextAsync("Views/Home.html");
-        await writer.WriteLineAsync(pageHtml);
-        context.Response.StatusCode = (int)HttpStatusCode.OK;
-        context.Response.ContentType = "text/html";
+
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error()
+    {
+        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 }
