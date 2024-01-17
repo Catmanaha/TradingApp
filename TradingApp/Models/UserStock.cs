@@ -6,10 +6,5 @@ public class UserStock
     public int StockId { get; set; }
     public int StockCount { get; set; }
 
-    public UserStock(int userId, int stockId, int stockCount)
-    {
-        this.UserId = userId;
-        this.StockId = stockId;
-        this.StockCount = stockCount;
-    }
+
 }
