@@ -5,4 +5,7 @@ using System.Threading.Tasks;
 
 namespace TradingApp.Repositories.Base;
 
-public interface ISqlRepository<T> : IGetAll<T>, ICreate<T> { }
+public interface ICreate<T>
+{
+    public Task<int> CreateAsync(T model);
+}
