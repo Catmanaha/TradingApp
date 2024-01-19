@@ -19,11 +19,6 @@ public class StockSqlRepository : ISqlRepository<Stock>
         this.connection = connection;
     }
 
-    public async Task<Stock?> GetByIdAsync(int id)
-    {
-        return await connection.QueryFirstOrDefaultAsync<Stock>("select * from Stocks where Id = @id", new { id });
-    }
-
     public async Task<int> CreateAsync(Stock stock)
     {
         return await connection.ExecuteAsync(@"insert into Stocks(Symbol, Name, MarketCap) 
