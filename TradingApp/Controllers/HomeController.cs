@@ -1,17 +1,15 @@
 using System.Net;
+using TradingApp.Attributes.Http;
 using TradingApp.Controllers.Base;
+using TradingApp.Models.Base;
 
 namespace TradingApp.Controllers;
 
 public class HomeController : ControllerBase
 {
-    public async Task HomePageAsync(HttpListenerContext context)
+    [HttpGet]
+    public ActionResult Index()
     {
-        using var writer = new StreamWriter(context.Response.OutputStream);
-
-        var pageHtml = await File.ReadAllTextAsync("Views/Home.html");
-        await writer.WriteLineAsync(pageHtml);
-        context.Response.StatusCode = (int)HttpStatusCode.OK;
-        context.Response.ContentType = "text/html";
+        return base.View();
     }
 }

@@ -6,6 +6,7 @@ using TradingApp.Controllers.Base;
 using Dapper;
 using TradingApp.Extensions;
 using TradingApp.Models;
+using TradingApp.Models.Base;
 
 namespace TradingApp.Controllers;
 
@@ -14,29 +15,29 @@ public class StockController : ControllerBase
     private const string connectionString = "Server=localhost;Database=TradingAppDb;User Id=sa;Password=Tomik2008;";
 
     [HttpGet("GetAll")]
-    public async Task GetStocksAsync(HttpListenerContext context)
+    public async Task<ActionResult> GetAll()
     {
-        using var writer = new StreamWriter(context.Response.OutputStream);
-
         using var connection = new SqlConnection(connectionString);
         var stocks = await connection.QueryAsync<Stock>("select * from Stocks");
 
         var stocksHtml = stocks.GetHtml();
-        await writer.WriteLineAsync(stocksHtml);
-        context.Response.ContentType = "text/html";
 
-        context.Response.StatusCode = (int)HttpStatusCode.OK;
+        return ObjectView(stocksHtml);
     }
 
     [HttpGet("GetById")]
-    public async Task GetStockByIdAsync(HttpListenerContext context)
+    public async Task<ActionResult> GetStockById()
     {
-        var stockIdToGetObj = context.Request.QueryString["id"];
+        var stockIdToGetObj = base.HttpContext.Request.QueryString["id"];
 
-        if (stockIdToGetObj == null || int.TryParse(stockIdToGetObj, out int stockIdToGet) == false)
+        if (stockIdToGetObj == null)
         {
-            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            return;
+            return BadRequest("Didnt send stock id");
+        }
+
+        if (int.TryParse(stockIdToGetObj, out int stockIdToGet) == false)
+        {
+            return BadRequest("id isnt integer");
         }
 
         using var connection = new SqlConnection(connectionString);
@@ -46,26 +47,20 @@ public class StockController : ControllerBase
 
         if (stock is null)
         {
-            context.Response.StatusCode = (int)HttpStatusCode.NotFound;
-            return;
+            return NotFound();
         }
 
-        using var writer = new StreamWriter(context.Response.OutputStream);
-        await writer.WriteLineAsync(JsonSerializer.Serialize(stock));
-
-        context.Response.ContentType = "application/json";
-        context.Response.StatusCode = (int)HttpStatusCode.OK;
+        return Ok(stock);
     }
 
-    [HttpGet("SearchByName")]
-    public async Task GetStockByNameAsync(HttpListenerContext context)
+    [HttpGet("GetByName")]
+    public async Task<ActionResult> GetStockByName()
     {
-        var stockNameToGetObj = context.Request.QueryString["name"];
+        var stockNameToGetObj = base.HttpContext.Request.QueryString["name"];
 
         if (stockNameToGetObj == null)
         {
-            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            return;
+            return BadRequest("didnt send name");
         }
 
         using var connection = new SqlConnection(connectionString);
@@ -76,52 +71,40 @@ public class StockController : ControllerBase
 
         if (stocks is null)
         {
-            context.Response.StatusCode = (int)HttpStatusCode.NotFound;
-            return;
+            return NotFound();
         }
 
-        using var writer = new StreamWriter(context.Response.OutputStream);
-        await writer.WriteLineAsync(JsonSerializer.Serialize(stocks));
+        var stockPage = stocks.GetHtml();
 
-        context.Response.ContentType = "application/json";
-        context.Response.StatusCode = (int)HttpStatusCode.OK;
+        return ObjectView(stockPage);
     }
 
-    [HttpPost("Create")]
-    public async Task PostStockAsync(HttpListenerContext context)
+    [HttpPost]
+    public async Task<ActionResult> Create()
     {
-        using var writer = new StreamWriter(context.Response.OutputStream);
-        using var reader = new StreamReader(context.Request.InputStream);
+        using var reader = new StreamReader(base.HttpContext.Request.InputStream);
         var json = await reader.ReadToEndAsync();
 
         if (json == "{}")
         {
-            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            await writer.WriteAsync("Send stock json");
-            return;
+            return BadRequest("Send stock json");
         }
 
         var newStock = JsonSerializer.Deserialize<Stock>(json);
 
         if (string.IsNullOrWhiteSpace(newStock.MarketCap))
         {
-            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            await writer.WriteAsync("MarketCap is empty");
-            return;
+            return BadRequest("MarketCap is empty");
         }
 
         if (string.IsNullOrWhiteSpace(newStock.Name))
         {
-            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            await writer.WriteAsync("Name is empty");
-            return;
+            return BadRequest("Name is empty");
         }
 
         if (string.IsNullOrWhiteSpace(newStock.Symbol))
         {
-            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            await writer.WriteAsync("Symbol is empty");
-            return;
+            return BadRequest("Symbol is empty");
         }
 
         using var connection = new SqlConnection(connectionString);
@@ -130,18 +113,22 @@ public class StockController : ControllerBase
         values(@Symbol, @Name, @MarketCap)",
             param: newStock);
 
-        context.Response.StatusCode = (int)HttpStatusCode.Created;
+        return Created();
     }
 
     [HttpDelete]
-    public async Task DeleteStockAsync(HttpListenerContext context)
+    public async Task<ActionResult> Delete()
     {
-        var stockIdToDeleteObj = context.Request.QueryString["id"];
-
-        if (stockIdToDeleteObj == null || int.TryParse(stockIdToDeleteObj, out int stockIdToDelete) == false)
+        var stockIdToDeleteObj = base.HttpContext.Request.QueryString["id"];
+        System.Console.WriteLine(stockIdToDeleteObj);
+        if (stockIdToDeleteObj == null)
         {
-            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            return;
+            return BadRequest("Didnt send stock id");
+        }
+
+        if (int.TryParse(stockIdToDeleteObj, out int stockIdToDelete) == false)
+        {
+            return BadRequest("id isnt integer");
         }
 
         using var connection = new SqlConnection(connectionString);
@@ -155,56 +142,50 @@ public class StockController : ControllerBase
 
         if (deletedRowsCount == 0)
         {
-            context.Response.StatusCode = (int)HttpStatusCode.NotFound;
-            return;
+            return NotFound();
         }
 
-        context.Response.StatusCode = (int)HttpStatusCode.OK;
+        return Ok();
     }
 
     [HttpPut]
-    public async Task PutStockAsync(HttpListenerContext context)
+    public async Task<ActionResult> Edit()
     {
-        var stockIdToUpdateObj = context.Request.QueryString["id"];
+        var stockIdToUpdateObj = base.HttpContext.Request.QueryString["id"];
 
-        if (stockIdToUpdateObj == null || int.TryParse(stockIdToUpdateObj, out int stockIdToUpdate) == false)
+        if (stockIdToUpdateObj == null)
         {
-            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            return;
+            return BadRequest("Didnt send stock id");
         }
 
-        using var writer = new StreamWriter(context.Response.OutputStream);
-        using var reader = new StreamReader(context.Request.InputStream);
+        if (int.TryParse(stockIdToUpdateObj, out int stockIdToDelete) == false)
+        {
+            return BadRequest("id isnt integer");
+        }
+
+        using var reader = new StreamReader(base.HttpContext.Request.InputStream);
         var json = await reader.ReadToEndAsync();
 
         if (json == "{}")
         {
-            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            await writer.WriteAsync("Send stock json");
-            return;
+            return BadRequest("Send stock json");
         }
 
         var stockToUpdate = JsonSerializer.Deserialize<Stock>(json);
 
         if (string.IsNullOrWhiteSpace(stockToUpdate.MarketCap))
         {
-            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            await writer.WriteAsync("MarketCap is empty");
-            return;
+            return BadRequest("MarketCap is empty");
         }
 
         if (string.IsNullOrWhiteSpace(stockToUpdate.Name))
         {
-            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            await writer.WriteAsync("Name is empty");
-            return;
+            return BadRequest("Name is empty");
         }
 
         if (string.IsNullOrWhiteSpace(stockToUpdate.Symbol))
         {
-            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            await writer.WriteAsync("Symbol is empty");
-            return;
+            return BadRequest("Symbol is empty");
         }
 
         using var connection = new SqlConnection(connectionString);
@@ -217,15 +198,14 @@ public class StockController : ControllerBase
                 stockToUpdate.Symbol,
                 stockToUpdate.Name,
                 stockToUpdate.MarketCap,
-                Id = stockIdToUpdate
+                Id = stockIdToUpdateObj
             });
 
         if (affectedRowsCount == 0)
         {
-            context.Response.StatusCode = (int)HttpStatusCode.NotFound;
-            return;
+            return NotFound();
         }
 
-        context.Response.StatusCode = (int)HttpStatusCode.OK;
+        return Ok();
     }
 }
