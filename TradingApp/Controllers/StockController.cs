@@ -12,13 +12,18 @@ namespace TradingApp.Controllers;
 
 public class StockController : ControllerBase
 {
-    private const string connectionString = "Server=localhost;Database=TradingAppDb;User Id=sa;Password=Tomik2008;";
+    string connectionString = "Server=localhost;Database=TradingAppDb;User Id=sa;Password=Tomik2008;";
+    SqlConnection Connection { get; set; }
+
+    public StockController()
+    {
+        Connection = new SqlConnection(connectionString); ;
+    }
 
     [HttpGet("GetAll")]
     public async Task<ActionResult> GetAll()
     {
-        using var connection = new SqlConnection(connectionString);
-        var stocks = await connection.QueryAsync<Stock>("select * from Stocks");
+        var stocks = await Connection.QueryAsync<Stock>("select * from Stocks");
 
         var stocksHtml = stocks.GetHtml();
 
@@ -40,8 +45,7 @@ public class StockController : ControllerBase
             return BadRequest("id isnt integer");
         }
 
-        using var connection = new SqlConnection(connectionString);
-        var stock = await connection.QueryFirstOrDefaultAsync<Stock>(
+        var stock = await Connection.QueryFirstOrDefaultAsync<Stock>(
             sql: "select top 1 * from Stocks where Id = @Id",
             param: new { Id = stockIdToGet });
 
@@ -63,8 +67,7 @@ public class StockController : ControllerBase
             return BadRequest("didnt send name");
         }
 
-        using var connection = new SqlConnection(connectionString);
-        var stocks = await connection.QueryAsync<Stock>(
+        var stocks = await Connection.QueryAsync<Stock>(
             sql: $"select * from Stocks where Name like @NameLike",
             new { NameLike = "%" + stockNameToGetObj + "%" }
         );
@@ -107,8 +110,7 @@ public class StockController : ControllerBase
             return BadRequest("Symbol is empty");
         }
 
-        using var connection = new SqlConnection(connectionString);
-        var stocks = await connection.ExecuteAsync(
+        var stocks = await Connection.ExecuteAsync(
             @"insert into Stocks (Symbol, Name, MarketCap) 
         values(@Symbol, @Name, @MarketCap)",
             param: newStock);
@@ -131,8 +133,7 @@ public class StockController : ControllerBase
             return BadRequest("id isnt integer");
         }
 
-        using var connection = new SqlConnection(connectionString);
-        var deletedRowsCount = await connection.ExecuteAsync(
+        var deletedRowsCount = await Connection.ExecuteAsync(
             @"delete Stocks
         where Id = @Id",
             param: new
@@ -188,8 +189,7 @@ public class StockController : ControllerBase
             return BadRequest("Symbol is empty");
         }
 
-        using var connection = new SqlConnection(connectionString);
-        var affectedRowsCount = await connection.ExecuteAsync(
+        var affectedRowsCount = await Connection.ExecuteAsync(
             @"update Stocks
         set Symbol = @Symbol, Name = @Name, MarketCap = @MarketCap
         where Id = @Id",
