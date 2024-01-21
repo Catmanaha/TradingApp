@@ -5,6 +5,9 @@ using TradingApp.Attributes.Http.Base;
 using TradingApp.Controllers;
 using TradingApp.Controllers.Base;
 using TradingApp.Models.Base;
+using SimpleInjector;
+using System.Data.SqlClient;
+
 
 HttpListener httpListener = new HttpListener();
 
