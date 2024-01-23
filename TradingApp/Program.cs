@@ -1,8 +1,13 @@
 ﻿using System.Net;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using TradingApp.Attributes.Http.Base;
 using TradingApp.Controllers;
 using TradingApp.Controllers.Base;
+using TradingApp.Models.Base;
+using SimpleInjector;
+using System.Data.SqlClient;
+
 
 HttpListener httpListener = new HttpListener();
 
@@ -10,6 +15,23 @@ const int port = 8080;
 httpListener.Prefixes.Add($"http://*:{port}/");
 
 httpListener.Start();
+
+void AddValuesForResult(HttpListenerContext context, Result result)
+{
+    context.Response.ContentType = result.ContentType;
+    context.Response.StatusCode = (int)result.StatusCode;
+}
+
+async Task AddValuesForObjectResult(HttpListenerContext context, ObjectResult objectResult)
+{
+    using var writer = new StreamWriter(context.Response.OutputStream);
+
+    context.Response.ContentType = objectResult.ContentType;
+    context.Response.StatusCode = (int)objectResult.StatusCode;
+    await writer.WriteLineAsync(objectResult.Body);
+
+}
+
 
 while (true)
 {
@@ -19,7 +41,10 @@ while (true)
 
     if (endpointItems == null || endpointItems.Any() == false)
     {
-        await new HomeController().HomePageAsync(context);
+        new HomeController
+        {
+            HttpContext = context
+        }.Index();
         context.Response.Close();
         continue;
     }
@@ -50,23 +75,25 @@ while (true)
                         bool isHttpMethodCorrect = httpAttribute.MethodType.Method.ToLower() == normalizedRequestHttpMethod;
 
                         if (isHttpMethodCorrect)
-                        {
                             if (endpointItems.Length == 1 && httpAttribute.NormalizedRouting == null)
+                            {
                                 return true;
+                            }
 
                             else if (endpointItems.Length > 1)
                             {
                                 if (httpAttribute.NormalizedRouting == null)
+                                {
                                     return false;
+
+                                }
                                 else
                                 {
                                     var expectedEndpoint = string.Join('/', endpointItems[1..]).ToLower();
                                     var actualEndpoint = httpAttribute.NormalizedRouting;
-
                                     return actualEndpoint == expectedEndpoint;
                                 }
                             }
-                        }
                     }
 
                     return false;
@@ -81,7 +108,40 @@ while (true)
     }
 
     var controller = Activator.CreateInstance(controllerType) as ControllerBase;
-    var methodCall = controllerMethod.Invoke(controller, parameters: new[] { context });
+
+    controller.HttpContext = context;
+
+    var methodCall = controllerMethod.Invoke(controller, null);
+
+    if (methodCall is Task<ActionResult> methodCallAsActionResultTask)
+    {
+
+        if (methodCallAsActionResultTask.Result is ObjectResult methodCallAsObjectResultTask)
+        {
+            await AddValuesForObjectResult(context, methodCallAsObjectResultTask);
+        }
+        else if (methodCallAsActionResultTask.Result is Result methodCallAsResultTask)
+        {
+            AddValuesForResult(context, methodCallAsResultTask);
+        }
+
+
+    }
+    else if (methodCall is ActionResult methodCallAsActionResult)
+    {
+        if (methodCallAsActionResult is ObjectResult methodCallAsObjectResult)
+        {
+            await AddValuesForObjectResult(context, methodCallAsObjectResult);
+
+        }
+        else if (methodCallAsActionResult is Result methodCallAsResult)
+        {
+            AddValuesForResult(context, methodCallAsResult);
+        }
+
+    }
+
+
 
     if (methodCall != null && methodCall is Task asyncMethod)
     {
