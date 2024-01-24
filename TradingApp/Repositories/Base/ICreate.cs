@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace TradingApp.Repositories.Base;
 
-public interface ICreate<T>
+public interface ICreate
 {
-    public Task<int> CreateAsync(T model);
+    public Task<int> CreateAsync<T>(T model);
 }

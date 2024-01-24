@@ -1,15 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using TradingApp.Dtos;
 using TradingApp.Models;
-using TradingApp.Repositories;
 using TradingApp.Repositories.Base;
-
 
 namespace TradingApp.Controllers;
 
@@ -24,7 +16,6 @@ public class StockController : Controller
 
     public async Task<IActionResult> GetAll()
     {
-
         var getAll = await repository.GetAllAsync();
 
         return View(getAll);
@@ -38,7 +29,6 @@ public class StockController : Controller
     [HttpPost]
     public async Task<IActionResult> Create(StockDto stock)
     {
-
         if (string.IsNullOrEmpty(stock.MarketCap))
         {
             return BadRequest("Dont leave the market capacity field empty");

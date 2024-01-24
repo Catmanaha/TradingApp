@@ -11,7 +11,7 @@ string? connectionString = builder.Configuration.GetConnectionString("TradingApp
 
 ArgumentNullException.ThrowIfNull(connectionString);
 
-builder.Services.AddScoped<ISqlRepository<Stock>>(p =>
+builder.Services.AddScoped<IStockRepository>(p =>
 {
     return new StockSqlRepository(new SqlConnection(connectionString));
 });
