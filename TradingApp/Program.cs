@@ -1,5 +1,3 @@
-using System.Data;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Data.SqlClient;
 using TradingApp.Models;
 using TradingApp.Repositories;
@@ -38,3 +36,4 @@ app.MapControllerRoute(
     pattern: "{controller=Stock}/{action=GetAll}");
 
 app.Run();
+
