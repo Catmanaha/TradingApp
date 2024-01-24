@@ -10,6 +10,7 @@ using TradingApp.Models;
 using TradingApp.Repositories;
 using TradingApp.Repositories.Base;
 
+
 namespace TradingApp.Controllers;
 
 public class StockController : Controller
