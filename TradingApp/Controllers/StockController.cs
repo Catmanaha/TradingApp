@@ -1,211 +1,62 @@
-using System.Data.SqlClient;
-using System.Net;
-using System.Text.Json;
-using TradingApp.Attributes.Http;
-using TradingApp.Controllers.Base;
-using Dapper;
-using TradingApp.Extensions;
+using Microsoft.AspNetCore.Mvc;
+using TradingApp.Dtos;
 using TradingApp.Models;
-using TradingApp.Models.Base;
+using TradingApp.Repositories.Base;
 
 namespace TradingApp.Controllers;
 
-public class StockController : ControllerBase
+public class StockController : Controller
 {
-    string connectionString = "Server=localhost;Database=TradingAppDb;User Id=sa;Password=Tomik2008;";
-    SqlConnection Connection { get; set; }
+    private readonly ISqlRepository<Stock> repository;
 
-    public StockController()
+    public StockController(ISqlRepository<Stock> repository)
     {
-        Connection = new SqlConnection(connectionString); ;
+        this.repository = repository;
     }
 
-    [HttpGet("GetAll")]
-    public async Task<ActionResult> GetAll()
+    public async Task<IActionResult> GetAll()
     {
-        var stocks = await Connection.QueryAsync<Stock>("select * from Stocks");
+        var getAll = await repository.GetAllAsync();
 
-        var stocksHtml = stocks.GetHtml();
-
-        return ObjectView(stocksHtml);
+        return View(getAll);
     }
 
-    [HttpGet("GetById")]
-    public async Task<ActionResult> GetStockById()
+    public IActionResult Create()
     {
-        var stockIdToGetObj = base.HttpContext.Request.QueryString["id"];
-
-        if (stockIdToGetObj == null)
-        {
-            return BadRequest("Didnt send stock id");
-        }
-
-        if (int.TryParse(stockIdToGetObj, out int stockIdToGet) == false)
-        {
-            return BadRequest("id isnt integer");
-        }
-
-        var stock = await Connection.QueryFirstOrDefaultAsync<Stock>(
-            sql: "select top 1 * from Stocks where Id = @Id",
-            param: new { Id = stockIdToGet });
-
-        if (stock is null)
-        {
-            return NotFound();
-        }
-
-        return Ok(stock);
-    }
-
-    [HttpGet("GetByName")]
-    public async Task<ActionResult> GetStockByName()
-    {
-        var stockNameToGetObj = base.HttpContext.Request.QueryString["name"];
-
-        if (stockNameToGetObj == null)
-        {
-            return BadRequest("didnt send name");
-        }
-
-        var stocks = await Connection.QueryAsync<Stock>(
-            sql: $"select * from Stocks where Name like @NameLike",
-            new { NameLike = "%" + stockNameToGetObj + "%" }
-        );
-
-        if (stocks is null)
-        {
-            return NotFound();
-        }
-
-        var stockPage = stocks.GetHtml();
-
-        return ObjectView(stockPage);
+        return View();
     }
 
     [HttpPost]
-    public async Task<ActionResult> Create()
+    public async Task<IActionResult> Create(StockDto stock)
     {
-        using var reader = new StreamReader(base.HttpContext.Request.InputStream);
-        var json = await reader.ReadToEndAsync();
-
-        if (json == "{}")
+        if (string.IsNullOrEmpty(stock.MarketCap))
         {
-            return BadRequest("Send stock json");
+            return BadRequest("Dont leave the market capacity field empty");
         }
 
-        var newStock = JsonSerializer.Deserialize<Stock>(json);
-
-        if (string.IsNullOrWhiteSpace(newStock.MarketCap))
+        if (string.IsNullOrEmpty(stock.Name))
         {
-            return BadRequest("MarketCap is empty");
+            return BadRequest("Dont leave the name field empty");
         }
 
-        if (string.IsNullOrWhiteSpace(newStock.Name))
+        if (string.IsNullOrEmpty(stock.Symbol))
         {
-            return BadRequest("Name is empty");
+            return BadRequest("Dont leave the symbol field empty");
         }
 
-        if (string.IsNullOrWhiteSpace(newStock.Symbol))
+        await repository.CreateAsync(new Stock
         {
-            return BadRequest("Symbol is empty");
-        }
+            MarketCap = stock.MarketCap,
+            Symbol = stock.Symbol,
+            Name = stock.Name
+        });
 
-        var stocks = await Connection.ExecuteAsync(
-            @"insert into Stocks (Symbol, Name, MarketCap) 
-        values(@Symbol, @Name, @MarketCap)",
-            param: newStock);
-
-        return Created();
+        return RedirectToAction("GetAll");
     }
 
-    [HttpDelete]
-    public async Task<ActionResult> Delete()
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error()
     {
-        var stockIdToDeleteObj = base.HttpContext.Request.QueryString["id"];
-        System.Console.WriteLine(stockIdToDeleteObj);
-        if (stockIdToDeleteObj == null)
-        {
-            return BadRequest("Didnt send stock id");
-        }
-
-        if (int.TryParse(stockIdToDeleteObj, out int stockIdToDelete) == false)
-        {
-            return BadRequest("id isnt integer");
-        }
-
-        var deletedRowsCount = await Connection.ExecuteAsync(
-            @"delete Stocks
-        where Id = @Id",
-            param: new
-            {
-                Id = stockIdToDelete,
-            });
-
-        if (deletedRowsCount == 0)
-        {
-            return NotFound();
-        }
-
-        return Ok();
-    }
-
-    [HttpPut]
-    public async Task<ActionResult> Edit()
-    {
-        var stockIdToUpdateObj = base.HttpContext.Request.QueryString["id"];
-
-        if (stockIdToUpdateObj == null)
-        {
-            return BadRequest("Didnt send stock id");
-        }
-
-        if (int.TryParse(stockIdToUpdateObj, out int stockIdToDelete) == false)
-        {
-            return BadRequest("id isnt integer");
-        }
-
-        using var reader = new StreamReader(base.HttpContext.Request.InputStream);
-        var json = await reader.ReadToEndAsync();
-
-        if (json == "{}")
-        {
-            return BadRequest("Send stock json");
-        }
-
-        var stockToUpdate = JsonSerializer.Deserialize<Stock>(json);
-
-        if (string.IsNullOrWhiteSpace(stockToUpdate.MarketCap))
-        {
-            return BadRequest("MarketCap is empty");
-        }
-
-        if (string.IsNullOrWhiteSpace(stockToUpdate.Name))
-        {
-            return BadRequest("Name is empty");
-        }
-
-        if (string.IsNullOrWhiteSpace(stockToUpdate.Symbol))
-        {
-            return BadRequest("Symbol is empty");
-        }
-
-        var affectedRowsCount = await Connection.ExecuteAsync(
-            @"update Stocks
-        set Symbol = @Symbol, Name = @Name, MarketCap = @MarketCap
-        where Id = @Id",
-            param: new
-            {
-                stockToUpdate.Symbol,
-                stockToUpdate.Name,
-                stockToUpdate.MarketCap,
-                Id = stockIdToUpdateObj
-            });
-
-        if (affectedRowsCount == 0)
-        {
-            return NotFound();
-        }
-
-        return Ok();
+        return View("Error!");
     }
 }
