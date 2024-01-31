@@ -1,8 +1,7 @@
-namespace TradingApp.Models;
+namespace TradingApp.Dtos;
 
-public class Stock
+public class StockDto
 {
-    public int Id { get; set; }
     public string? Symbol { get; set; }
     public string? Name { get; set; }
     public string? MarketCap { get; set; }
