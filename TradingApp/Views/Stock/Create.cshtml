@@ -17,7 +17,8 @@
 
 @foreach (string error in errors)
 {
-  <span>@error</span>
+  <span class="text-danger">@error</span>
+  <br>
 }
 
 <form asp-action="Create" method="post">

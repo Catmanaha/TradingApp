@@ -1,13 +1,13 @@
-using Microsoft.Data.SqlClient;
-using TradingApp.Models;
 using TradingApp.Repositories;
 using TradingApp.Repositories.Base;
+using TradingApp.Repositories.Base.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddScoped<IStockRepository>(p =>
+string GetConnectionString()
 {
     string connectionStringKey = "TradingAppDb";
     string? connectionString = builder.Configuration.GetConnectionString(connectionStringKey);
@@ -16,7 +16,18 @@ builder.Services.AddScoped<IStockRepository>(p =>
     {
         throw new NullReferenceException($"No connection string found in appsettings.json with a key '{connectionStringKey}'");
     }
-    return new StockSqlRepository(connectionString);
+
+    return connectionString;
+}
+
+builder.Services.AddScoped<IStockRepository>(p =>
+{
+    return new StockSqlRepository(GetConnectionString());
+});
+
+builder.Services.AddScoped<IUserRepository>(p =>
+{
+    return new UserSqlRepository(GetConnectionString());
 });
 
 var app = builder.Build();
