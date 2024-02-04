@@ -1,6 +1,6 @@
 namespace TradingApp.Repositories.Base;
 
-public interface IGetAll
+public interface IGetAll<T>
 {
-    public Task<IEnumerable<T>> GetAllAsync<T>();
+    public Task<IEnumerable<T>> GetAllAsync();
 }

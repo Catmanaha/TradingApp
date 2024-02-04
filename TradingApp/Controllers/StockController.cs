@@ -7,9 +7,9 @@ namespace TradingApp.Controllers;
 
 public class StockController : Controller
 {
-    private readonly ISqlRepository<Stock> repository;
+    private readonly IStockRepository repository;
 
-    public StockController(ISqlRepository<Stock> repository)
+    public StockController(IStockRepository repository)
     {
         this.repository = repository;
     }
@@ -29,19 +29,26 @@ public class StockController : Controller
     [HttpPost]
     public async Task<IActionResult> Create(StockDto stock)
     {
-        if (string.IsNullOrEmpty(stock.MarketCap))
+        var errors = new List<string>();
+
+        if (long.IsNegative(stock.MarketCap))
         {
-            return BadRequest("Dont leave the market capacity field empty");
+            errors.Add("Market capacity cannot be negative");
         }
 
         if (string.IsNullOrEmpty(stock.Name))
         {
-            return BadRequest("Dont leave the name field empty");
+            errors.Add("Dont leave name empty");
         }
 
         if (string.IsNullOrEmpty(stock.Symbol))
         {
-            return BadRequest("Dont leave the symbol field empty");
+            errors.Add("Dont leave symbol empty");
+        }
+
+        if (errors.Any())
+        {
+            return View(errors);
         }
 
         await repository.CreateAsync(new Stock
