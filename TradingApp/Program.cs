@@ -7,13 +7,16 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
-string? connectionString = builder.Configuration.GetConnectionString("TradingAppDb");
-
-ArgumentNullException.ThrowIfNull(connectionString);
-
 builder.Services.AddScoped<IStockRepository>(p =>
 {
-    return new StockSqlRepository(new SqlConnection(connectionString));
+    string connectionStringKey = "TradingAppDb";
+    string? connectionString = builder.Configuration.GetConnectionString(connectionStringKey);
+
+    if (string.IsNullOrEmpty(connectionString))
+    {
+        throw new NullReferenceException($"No connection string found in appsettings.json with a key '{connectionStringKey}'");
+    }
+    return new StockSqlRepository(connectionString);
 });
 
 var app = builder.Build();
@@ -33,7 +36,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Stock}/{action=GetAll}");
+    pattern: "{controller=Home}/{action=Index}");
 
 app.Run();
 
