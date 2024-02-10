@@ -1,3 +1,5 @@
+using TradingApp.Middlewares;
+using TradingApp.Models;
 using TradingApp.Repositories;
 using TradingApp.Repositories.Base;
 using TradingApp.Repositories.Base.Repositories;
@@ -35,6 +37,11 @@ builder.Services.AddScoped<ILogRepository>(p =>
     return new LogSqlRepository(GetConnectionString());
 });
 
+builder.Services.Configure<LogManager>(builder.Configuration.GetSection("LoggerControl"));
+
+builder.Services.AddTransient<LogMiddleware>();
+
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
@@ -49,6 +56,8 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+
+app.UseMiddleware<LogMiddleware>();
 
 app.MapControllerRoute(
     name: "default",
