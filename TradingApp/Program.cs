@@ -30,6 +30,11 @@ builder.Services.AddScoped<IUserRepository>(p =>
     return new UserSqlRepository(GetConnectionString());
 });
 
+builder.Services.AddScoped<ILogRepository>(p =>
+{
+    return new LogSqlRepository(GetConnectionString());
+});
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
