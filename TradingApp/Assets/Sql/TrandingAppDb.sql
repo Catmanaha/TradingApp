@@ -10,7 +10,8 @@ CREATE TABLE [Users] (
     [Email] nvarchar(max),
     [Name] nvarchar(max),
     [Surname] nvarchar(max),
-    [Password] nvarchar(max)
+    [Password] nvarchar(max),
+    [Role] int
 )
 
 CREATE TABLE [Logs] (

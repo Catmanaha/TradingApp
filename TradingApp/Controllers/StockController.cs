@@ -1,5 +1,7 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using TradingApp.Dtos;
+using TradingApp.Enums;
 using TradingApp.Models;
 using TradingApp.Repositories.Base;
 
@@ -17,7 +19,6 @@ public class StockController : Controller
     public async Task<IActionResult> GetAll()
     {
         var getAll = await repository.GetAllAsync();
-
         return View(getAll);
     }
 
