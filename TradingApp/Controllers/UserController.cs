@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using TradingApp.Dtos;
 using TradingApp.Repositories.Base.Repositories;
@@ -6,15 +7,12 @@ namespace TradingApp.Controllers;
 public class UserController : Controller
 {
     private readonly IUserRepository repository;
+    private readonly IDataProtector dataProtector;
 
-    public UserController(IUserRepository repository)
+    public UserController(IUserRepository repository, IDataProtectionProvider dataProtectionProvider)
     {
         this.repository = repository;
-    }
-
-    public IActionResult Register()
-    {
-        return View();
+        this.dataProtector = dataProtectionProvider.CreateProtector("IdentityProtection");
     }
 
     public IActionResult Logout()
@@ -43,7 +41,7 @@ public class UserController : Controller
 
         if (result is not null)
         {
-            HttpContext.Response.Cookies.Append("UserId", result.Id.ToString());
+            HttpContext.Response.Cookies.Append("UserId", dataProtector.Protect(result.Id.ToString()));
             return RedirectToAction("GetAll", "Stock");
         }
 
