@@ -1,7 +1,6 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using TradingApp.Dtos;
 using TradingApp.Enums;
@@ -33,6 +32,11 @@ public class UserController : Controller
     [HttpPost]
     public async Task<IActionResult> Register(UserRegisterDto userDto)
     {
+        if (ModelState.IsValid == false)
+        {
+            return View();
+        }
+
         var user = new User
         {
             Name = userDto.Name,
@@ -55,6 +59,11 @@ public class UserController : Controller
     [HttpPost]
     public async Task<IActionResult> Login(UserLoginDto userdto)
     {
+        if (ModelState.IsValid == false)
+        {
+            return View();
+        }
+
         var result = await repository.LoginAsync(userdto.Email, userdto.Password);
 
         if (result is null)
