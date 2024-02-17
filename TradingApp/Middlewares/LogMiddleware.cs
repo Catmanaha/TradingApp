@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Options;
 using TradingApp.Models;
+using TradingApp.Models.Managers;
 using TradingApp.Repositories.Base.Repositories;
 
 namespace TradingApp.Middlewares;

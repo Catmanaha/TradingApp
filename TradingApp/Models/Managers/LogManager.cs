@@ -1,4 +1,4 @@
-namespace TradingApp.Models;
+namespace TradingApp.Models.Managers;
 
 public class LogManager
 {

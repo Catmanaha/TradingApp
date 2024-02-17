@@ -12,12 +12,10 @@ namespace TradingApp.Controllers;
 public class UserController : Controller
 {
     private readonly IUserRepository repository;
-    private readonly IDataProtector dataProtector;
 
-    public UserController(IUserRepository repository, IDataProtectionProvider dataProtectionProvider)
+    public UserController(IUserRepository repository)
     {
         this.repository = repository;
-        this.dataProtector = dataProtectionProvider.CreateProtector("IdentityProtection");
     }
 
     public async Task<IActionResult> Logout()
@@ -46,9 +44,7 @@ public class UserController : Controller
 
         await repository.CreateAsync(user);
 
-
         return RedirectToAction("Login");
-
     }
 
     public IActionResult Login()
