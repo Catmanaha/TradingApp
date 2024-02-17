@@ -32,7 +32,7 @@ namespace TradingApp.Controllers
             {
                 return View();
             }
-            
+
             await repository.CreateAsync(new UserStock
             {
                 UserId = userStockDto.UserId,
@@ -41,6 +41,16 @@ namespace TradingApp.Controllers
             });
 
             return RedirectToAction("Profile", "User");
+        }
+
+        public async Task<IActionResult> GetAllForUser()
+        {
+            if (User.FindFirst("UserId") is null) {
+                return RedirectToAction("Login", "User");
+            }
+
+            var stocks = await repository.GetAllForUserAsync(int.Parse(User.FindFirst("UserId").Value));
+            return View(stocks);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

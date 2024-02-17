@@ -6,4 +6,7 @@ using TradingApp.Models;
 
 namespace TradingApp.Repositories.Base.Repositories;
 
-public interface IUserStockRepository : ICreate<UserStock> { }
+public interface IUserStockRepository : ICreate<UserStock>
+{
+    public Task<IEnumerable<UserStock>> GetAllForUserAsync(int id);
+ }

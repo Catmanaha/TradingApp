@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
 using TradingApp.Enums;
 
 namespace TradingApp.Models;

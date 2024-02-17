@@ -38,13 +38,23 @@
                     </ul>
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item" @LoginVisibilityCheck>
-                            <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Register">Register</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="User"
+                                asp-action="Register">Register</a>
                         </li>
                         <li class="nav-item" @LoginVisibilityCheck>
                             <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Login">Login</a>
                         </li>
-                        <li class="nav-item" @LogoutVisibilityCheck>
-                            <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Profile">Profile</a>
+                        <li class="nav-item dropdown" @LogoutVisibilityCheck>
+                            <a class="nav-link dropdown-toggle text-dark" href="#" id="navbarDropdown" role="button"
+                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Account
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item text-dark" asp-area="" asp-controller="User"
+                                    asp-action="Profile">Profile</a>
+                                <a class="dropdown-item text-dark" asp-area="" asp-controller="UserStock"
+                                    asp-action="GetAllForUser">My Stocks</a>
+                            </div>
                         </li>
                         <li class="nav-item" @LogoutVisibilityCheck>
                             <a class="nav-link text-dark" asp-area="" asp-controller="User"
