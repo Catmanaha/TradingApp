@@ -1,6 +1,8 @@
 using Dapper;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Options;
 using TradingApp.Models;
+using TradingApp.Models.Managers;
 using TradingApp.Repositories.Base;
 
 namespace TradingApp.Repositories;
@@ -9,9 +11,9 @@ public class StockSqlRepository : IStockRepository
 {
     private readonly SqlConnection connection;
 
-    public StockSqlRepository(string connectionString)
+    public StockSqlRepository(IOptions<ConnectionManager> connectionManager)
     {
-        this.connection = new SqlConnection(connectionString);
+        this.connection = new SqlConnection(connectionManager.Value.DefaultConnectionString);
     }
 
     public async Task<int> CreateAsync(Stock stock)

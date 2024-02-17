@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using TradingApp.Middlewares;
 using TradingApp.Models;
+using TradingApp.Models.Managers;
 using TradingApp.Repositories;
 using TradingApp.Repositories.Base;
 using TradingApp.Repositories.Base.Repositories;
@@ -16,38 +17,23 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     options.LogoutPath = "/User/Logout";
 });
 
-string GetConnectionString()
+string connectionStringKey = "TradingAppDb";
+string? connectionString = builder.Configuration.GetConnectionString("DefaultConnectionString");
+
+if (string.IsNullOrEmpty(connectionString))
 {
-    string connectionStringKey = "TradingAppDb";
-    string? connectionString = builder.Configuration.GetConnectionString(connectionStringKey);
-
-    if (string.IsNullOrEmpty(connectionString))
-    {
-        throw new NullReferenceException($"No connection string found in appsettings.json with a key '{connectionStringKey}'");
-    }
-
-    return connectionString;
+    throw new NullReferenceException($"No connection string found in appsettings.json with a key '{connectionStringKey}'");
 }
 
-builder.Services.AddScoped<IStockRepository>(p =>
-{
-    return new StockSqlRepository(GetConnectionString());
-});
+builder.Services.Configure<ConnectionManager>(builder.Configuration.GetSection("ConnectionStrings"));
+builder.Services.Configure<LogManager>(builder.Configuration.GetSection("LoggerManager"));
 
-builder.Services.AddScoped<IUserRepository>(p =>
-{
-    return new UserSqlRepository(GetConnectionString());
-});
-
-builder.Services.AddScoped<ILogRepository>(p =>
-{
-    return new LogSqlRepository(GetConnectionString());
-});
-
-builder.Services.Configure<LogManager>(builder.Configuration.GetSection("LoggerControl"));
+builder.Services.AddScoped<IStockRepository, StockSqlRepository>();
+builder.Services.AddScoped<IUserRepository, UserSqlRepository>();
+builder.Services.AddScoped<IUserStockRepository, UserStockSqlRepository>();
+builder.Services.AddScoped<ILogRepository, LogSqlRepository>();
 
 builder.Services.AddTransient<LogMiddleware>();
-
 
 var app = builder.Build();
 

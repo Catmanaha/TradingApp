@@ -1,0 +1,36 @@
+@model UserStockViewModel
+
+@{
+
+    var errors = Model.Errors;
+
+    if (Model.Errors is null)
+    {
+        errors = new List<string>();
+    }
+
+    int userId = int.Parse(User.FindFirst("UserId").Value);
+    int stockId = Model.StockId;
+    string stockName = Model.StockName;
+    int stockCount = 0;
+}
+
+<h1>Buy stock @Model.StockName</h1>
+
+@foreach (string error in errors)
+{
+    <span class="text-danger">@error</span>
+    <br>
+}
+
+<form asp-action="Create" method="post">
+    <input hidden asp-for="@stockName" type="text" class="form-control">
+    <input hidden asp-for="@userId" type="text" class="form-control">
+    <input hidden asp-for="@stockId" type="text" class="form-control">
+    <div class="form-group">
+        <label asp-for="@stockCount">Count</label>
+        <input asp-for="@stockCount" value=@stockCount type="number" class="form-control">
+    </div>
+    <br>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>

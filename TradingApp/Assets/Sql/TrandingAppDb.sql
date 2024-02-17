@@ -14,6 +14,12 @@ CREATE TABLE [Users] (
     [Role] int
 )
 
+CREATE TABLE [UsersStocks] (
+    [UserId] int,
+    [StockId] int,
+    [StockCount] int
+)
+
 CREATE TABLE [Logs] (
     [Id] int PRIMARY KEY identity ,
     [UserId] int,
