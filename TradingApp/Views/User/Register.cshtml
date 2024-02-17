@@ -7,9 +7,9 @@
 
 <h1>Register</h1>
 
-<span class="text-danger">@ViewData["Error"]</span>
-
 <form asp-action="Register" method="post">
+    <div class="text-danger" asp-validation-summary="All"></div>
+
     <div class="form-group">
         <label asp-for="@name">Name</label>
         <input asp-for="@name" type="text" class="form-control">

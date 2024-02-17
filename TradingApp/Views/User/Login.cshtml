@@ -8,6 +8,8 @@
 <span class="text-danger">@ViewData["Error"]</span>
 
 <form asp-action="Login" method="post">
+    <div class="text-danger" asp-validation-summary="All"></div>
+    
     <div class="form-group">
         <label asp-for="@email">Email</label>
         <input asp-for="@email" type="text" class="form-control">

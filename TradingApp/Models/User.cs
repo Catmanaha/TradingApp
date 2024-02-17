@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using TradingApp.Enums;
 
 namespace TradingApp.Models;

@@ -28,27 +28,11 @@ namespace TradingApp.Controllers
         public async Task<IActionResult> Create(UserStockDto userStockDto)
         {
 
-            var errors = new List<string>();
-
-            if (userStockDto.StockCount == 0)
+            if (ModelState.IsValid == false)
             {
-                errors.Add("Count cannot be zero");
+                return View();
             }
-
-            if (userStockDto.StockCount < 0)
-            {
-                errors.Add("Count cannot be negative");
-            }
-
-            if (errors.Any()) {
-                return View(new UserStockViewModel {
-                    Errors = errors,
-                    StockId = userStockDto.UserId,
-                    StockName = userStockDto.StockName,
-                });
-            }
-
-
+            
             await repository.CreateAsync(new UserStock
             {
                 UserId = userStockDto.UserId,

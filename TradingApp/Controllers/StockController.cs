@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TradingApp.Dtos;
 using TradingApp.Enums;
@@ -15,7 +16,7 @@ public class StockController : Controller
     {
         this.repository = repository;
     }
-
+    
     public async Task<IActionResult> GetAll()
     {
         var getAll = await repository.GetAllAsync();
@@ -30,26 +31,8 @@ public class StockController : Controller
     [HttpPost]
     public async Task<IActionResult> Create(StockDto stock)
     {
-        var errors = new List<string>();
-
-        if (long.IsNegative(stock.MarketCap))
-        {
-            errors.Add("Market capacity cannot be negative");
-        }
-
-        if (string.IsNullOrEmpty(stock.Name))
-        {
-            errors.Add("Dont leave name empty");
-        }
-
-        if (string.IsNullOrEmpty(stock.Symbol))
-        {
-            errors.Add("Dont leave symbol empty");
-        }
-
-        if (errors.Any())
-        {
-            return View(errors);
+        if (ModelState.IsValid == false) {
+            return View();
         }
 
         await repository.CreateAsync(new Stock
