@@ -1,4 +1,5 @@
 using Dapper;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 using TradingApp.Models;

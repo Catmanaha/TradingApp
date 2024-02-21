@@ -26,4 +26,16 @@ public class StockSqlRepository : IStockRepository
     {
         return await connection.QueryAsync<Stock>("select * from Stocks");
     }
+
+    public async Task<IEnumerable<Stock>> GetRecentStocks()
+    {
+        return await connection.QueryAsync<Stock>(@"select *
+                                                    from Stocks
+                                                    where Id not in (
+                                                        select top (
+                                                                (select count(*) from Stocks) - 5
+                                                            ) Id
+                                                        from Stocks
+                                                    )");
+    }
 }

@@ -2,6 +2,11 @@
 
 @{
 
+    if (User.FindFirst("UserId") is null) {
+        Context.Response.Redirect("/User/Login");
+        return;
+    }
+
     int userId = int.Parse(User.FindFirst("UserId").Value);
     int stockId = Model.StockId;
     string stockName = Model.StockName;
@@ -23,3 +28,7 @@
     <br>
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
+
+@section Scripts {
+  <script src="~/js/site.js" asp-append-version="true"></script>
+}

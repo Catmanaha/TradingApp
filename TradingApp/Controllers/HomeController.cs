@@ -1,12 +1,19 @@
 using Microsoft.AspNetCore.Mvc;
+using TradingApp.Repositories.Base;
 
 namespace TradingApp.Controllers;
 
 public class HomeController : Controller
 {
-    public IActionResult Index()
+    private readonly IStockRepository repository;
+
+    public HomeController(IStockRepository repository)
     {
-        return View();
+        this.repository = repository;
+    }
+
+    public async Task<IActionResult> Index() { 
+        return View(await repository.GetRecentStocks());
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
