@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TradingApp.Dtos;
 using TradingApp.Enums;
@@ -51,8 +52,10 @@ public class UserController : Controller
         return RedirectToAction("Login");
     }
 
-    public IActionResult Login()
+    public IActionResult Login(string? ReturnUrl)
     {
+        ViewData["ReturnUrl"] = ReturnUrl;
+
         return View();
     }
 
@@ -79,16 +82,21 @@ public class UserController : Controller
 
         var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
-
-        return RedirectToAction("GetAll", "Stock");
+        
+        return RedirectPermanent(userdto.ReturnUrl ?? "/");
 
     }
-
+    
+    [Authorize]
     public async Task<IActionResult> Profile()
     {
         var user = await repository.GetByIdAsync(int.Parse(User.FindFirstValue("UserId")!));
 
         return View(user);
+    }
+
+    public IActionResult AccessDenied() {
+        return View();
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

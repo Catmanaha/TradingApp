@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TradingApp.Dtos;
 using TradingApp.Models;
@@ -15,6 +16,7 @@ namespace TradingApp.Controllers
             this.repository = repository;
         }
 
+        [Authorize]
         public IActionResult Create(string stockName, int stockId)
         {
             return View(new UserStockViewModel
@@ -40,9 +42,10 @@ namespace TradingApp.Controllers
                 StockCount = userStockDto.StockCount
             });
 
-            return RedirectToAction("Profile", "User");
+            return RedirectToAction("GetAllForUser");
         }
-
+        
+        [Authorize]
         public async Task<IActionResult> GetAllForUser()
         {
             if (User.FindFirst("UserId") is null) {

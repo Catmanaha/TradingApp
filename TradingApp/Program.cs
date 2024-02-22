@@ -1,5 +1,7 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
+using TradingApp.Enums;
 using TradingApp.Middlewares;
 using TradingApp.Models;
 using TradingApp.Models.Managers;
@@ -14,7 +16,13 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 .AddCookie(options => {
     options.LoginPath = "/User/Login";
-    options.LogoutPath = "/User/Logout";
+    options.AccessDeniedPath = "/User/AccessDenied";
+});
+
+builder.Services.AddAuthorization(options => {
+    options.AddPolicy("Admins", p => {
+        p.RequireRole(ClaimTypes.Role, UserRolesEnum.Admin.ToString());
+    });
 });
 
 string connectionStringKey = "TradingAppDb";
@@ -49,6 +57,7 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseMiddleware<LogMiddleware>();
 
