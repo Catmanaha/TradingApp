@@ -1,0 +1,31 @@
+@{
+    string name = string.Empty;
+    string surname = string.Empty;
+    string email = string.Empty;
+    string password = string.Empty;
+}
+
+<h1>Register</h1>
+
+<form asp-action="Register" method="post">
+    <div class="text-danger" asp-validation-summary="All"></div>
+
+    <div class="form-group">
+        <label asp-for="@name">Name</label>
+        <input asp-for="@name" type="text" class="form-control">
+    </div>
+    <div class="form-group">
+        <label asp-for="@surname">Surname</label>
+        <input asp-for="@surname" type="text" class="form-control">
+    </div>
+    <div class="form-group">
+        <label asp-for="@email">Email</label>
+        <input asp-for="@email" type="text" class="form-control">
+    </div>
+    <div class="form-group">
+        <label asp-for="@password">Password</label>
+        <input asp-for="@password" type="password" class="form-control">
+    </div>
+    <br>
+    <button type="submit" class="btn btn-primary">Register</button>
+</form>

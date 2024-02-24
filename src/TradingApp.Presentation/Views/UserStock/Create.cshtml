@@ -1,0 +1,34 @@
+@model UserStockViewModel
+
+@{
+
+    if (User.FindFirst("UserId") is null) {
+        Context.Response.Redirect("/User/Login");
+        return;
+    }
+
+    int userId = int.Parse(User.FindFirst("UserId").Value);
+    int stockId = Model.StockId;
+    string stockName = Model.StockName;
+    int stockCount = 0;
+}
+
+<h1>Buy stock @Model.StockName</h1>
+
+<form asp-action="Create" method="post">
+    <div class="text-danger" asp-validation-summary="All"></div>
+    
+    <input hidden asp-for="@stockName" type="text" class="form-control">
+    <input hidden asp-for="@userId" type="text" class="form-control">
+    <input hidden asp-for="@stockId" type="text" class="form-control">
+    <div class="form-group">
+        <label asp-for="@stockCount">Count</label>
+        <input asp-for="@stockCount" value=@stockCount type="number" class="form-control">
+    </div>
+    <br>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+@section Scripts {
+  <script src="~/js/site.js" asp-append-version="true"></script>
+}

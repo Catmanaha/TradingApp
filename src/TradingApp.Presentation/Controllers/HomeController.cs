@@ -1,31 +1,25 @@
-﻿using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
-using TradingApp.Presentation.Models;
+﻿using Microsoft.AspNetCore.Mvc;
+using TradingApp.Core.Repositories;
 
 namespace TradingApp.Presentation.Controllers;
 
 public class HomeController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
+    private readonly IStockRepository repository;
 
-    public HomeController(ILogger<HomeController> logger)
+    public HomeController(IStockRepository repository)
     {
-        _logger = logger;
+        this.repository = repository;
     }
 
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-        return View();
-    }
-
-    public IActionResult Privacy()
-    {
-        return View();
+        return View(await repository.GetRecentStocks());
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        return View("Error!");
     }
 }

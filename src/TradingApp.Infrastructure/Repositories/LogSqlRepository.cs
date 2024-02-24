@@ -5,7 +5,7 @@ using TradingApp.Core.Models;
 using TradingApp.Core.Models.Managers;
 using TradingApp.Core.Repositories;
 
-namespace TradingApp.Repositories;
+namespace TradingApp.Infrastructure.Repositories;
 
 public class LogSqlRepository : ILogRepository
 {

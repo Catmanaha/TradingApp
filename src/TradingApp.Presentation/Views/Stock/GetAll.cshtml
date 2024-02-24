@@ -19,7 +19,7 @@ else
     <tbody>
       @foreach (var stock in Model)
       {
-        <tr>
+        <tr style="cursor: pointer" onclick="redirectToAction('/UserStock/Create?stockName=@stock.Name&stockId=@stock.Id')">
           <td>@stock.Symbol</td>
           <td>@stock.Name</td>
           <td>@stock.MarketCap</td>
@@ -27,4 +27,8 @@ else
       }
     </tbody>
   </table>
+}
+
+@section Scripts {
+  <script src="~/js/site.js" asp-append-version="true"></script>
 }
