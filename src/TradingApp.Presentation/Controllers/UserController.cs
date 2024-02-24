@@ -1,30 +1,32 @@
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using TradingApp.Core.Enums;
 using TradingApp.Core.Models;
-using TradingApp.Core.Repositories;
 using TradingApp.Presentation.Dtos;
 
 namespace TradingApp.Presentation.Controllers;
 
 public class UserController : Controller
 {
-    private readonly IUserRepository repository;
-    private readonly IDataProtector dataProtector;
+    private readonly UserManager<User> userManager;
+    private readonly RoleManager<IdentityRole<int>> roleManager;
+    private readonly SignInManager<User> signInManager;
 
-    public UserController(IUserRepository repository, IDataProtectionProvider dataProtectionProvider)
+    public UserController(
+        UserManager<User> userManager,
+        RoleManager<IdentityRole<int>> roleManager,
+        SignInManager<User> signInManager
+    )
     {
-        this.repository = repository;
-        this.dataProtector = dataProtectionProvider.CreateProtector("IdentityProtection");
+        this.userManager = userManager;
+        this.roleManager = roleManager;
+        this.signInManager = signInManager;
     }
 
     public async Task<IActionResult> Logout()
     {
-        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        await signInManager.SignOutAsync();
 
         return RedirectToAction("Index", "Home");
     }
@@ -44,14 +46,33 @@ public class UserController : Controller
 
         var user = new User
         {
-            Name = userDto.Name,
-            Surname = userDto.Surname,
-            Email = userDto.Email,
-            Password = userDto.Password,
-            Role = UserRolesEnum.User
+            UserName = userDto.Username,
+            Email = userDto.Email
         };
 
-        await repository.CreateAsync(user);
+        var result = await userManager.CreateAsync(user, userDto.Password);
+
+        if (!result.Succeeded)
+        {
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(error.Code, error.Description);   
+            }
+
+            if (ModelState.Any()) {
+                return View();
+            }
+
+        }
+
+        var userRole = new IdentityRole<int>
+        {
+            Name = UserRolesEnum.User.ToString()
+        };
+
+        await roleManager.CreateAsync(userRole);
+        await userManager.AddToRoleAsync(user, UserRolesEnum.User.ToString());
 
         return RedirectToAction("Login");
     }
@@ -71,21 +92,21 @@ public class UserController : Controller
             return View();
         }
 
-        var result = await repository.LoginAsync(userdto.Email, userdto.Password);
+        var user = await userManager.FindByEmailAsync(userdto.Email);
 
-        if (result is null)
+        if (user is null)
+        {
+            ViewData.Add("Error", "No user with this email found");
+            return View();
+        }
+
+        var result = await signInManager.PasswordSignInAsync(user, userdto.Password, true, true);
+
+        if (result.Succeeded == false)
         {
             ViewData.Add("Error", "Incorrect Credentials");
             return View();
         }
-
-        var claims = new List<Claim>() {
-            new Claim(ClaimTypes.Role, result.Role.ToString()),
-            new Claim("UserId", result.Id.ToString())
-        };
-
-        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
         return RedirectPermanent(userdto.ReturnUrl ?? "/");
 
@@ -94,7 +115,7 @@ public class UserController : Controller
     [Authorize]
     public async Task<IActionResult> Profile()
     {
-        var user = await repository.GetByIdAsync(int.Parse(User.FindFirstValue("UserId")!));
+        var user = await userManager.GetUserAsync(User);
 
         return View(user);
     }

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using TradingApp.Core.Models;
 using TradingApp.Core.Repositories;
@@ -10,10 +11,12 @@ namespace TradingApp.Presentation.Controllers;
 public class UserStockController : Controller
 {
     private readonly IUserStockRepository repository;
+    private readonly UserManager<User> userManager;
 
-    public UserStockController(IUserStockRepository repository)
+    public UserStockController(IUserStockRepository repository, UserManager<User> userManager)
     {
         this.repository = repository;
+        this.userManager = userManager;
     }
 
     [Authorize]
@@ -46,14 +49,14 @@ public class UserStockController : Controller
     }
 
     [Authorize]
-    public async Task<IActionResult> GetAllForUser()
+    public IActionResult GetAllForUser()
     {
-        if (User.FindFirst("UserId") is null)
+        if (userManager.GetUserId(User) is null)
         {
             return RedirectToAction("Login", "User");
         }
-
-        var stocks = await repository.GetAllForUserAsync(int.Parse(User.FindFirst("UserId").Value));
+    
+        var stocks = repository.GetAllForUser(int.Parse(userManager.GetUserId(User)));
         return View(stocks);
     }
 

@@ -5,5 +5,5 @@ namespace TradingApp.Core.Repositories;
 
 public interface IStockRepository : IGetAll<Stock>, ICreate<Stock>
 {
-    public Task<IEnumerable<Stock>> GetRecentStocks();
+    public IEnumerable<Stock> GetRecentStocks();
 }

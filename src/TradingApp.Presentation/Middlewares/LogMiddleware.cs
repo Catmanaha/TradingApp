@@ -1,6 +1,5 @@
-using System.Security.Claims;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using TradingApp.Core.Models;
 using TradingApp.Core.Models.Managers;
@@ -12,22 +11,29 @@ public class LogMiddleware : IMiddleware
 {
     private readonly ILogRepository repository;
     private readonly IOptionsMonitor<LogManager> optionsMonitor;
+    private readonly UserManager<User> userManager;
 
-    public LogMiddleware(ILogRepository repository, IOptionsMonitor<LogManager> optionsMonitor)
+    public LogMiddleware(
+        ILogRepository repository,
+        IOptionsMonitor<LogManager> optionsMonitor,
+        UserManager<User> userManager
+    )
     {
         this.repository = repository;
         this.optionsMonitor = optionsMonitor;
+        this.userManager = userManager;
     }
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        if (optionsMonitor.CurrentValue.IsLoggerEnabled == false) {
+        if (optionsMonitor.CurrentValue.IsLoggerEnabled == false)
+        {
             await next.Invoke(context);
             return;
         }
 
         int userId = default;
-        int.TryParse(context.User.FindFirstValue("UserId"), out userId);
+        int.TryParse(userManager.GetUserId(context.User), out userId);
 
         context.Request.EnableBuffering();
         var requestRead = await new StreamReader(context.Request.Body).ReadToEndAsync();
