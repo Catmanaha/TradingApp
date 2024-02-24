@@ -12,9 +12,9 @@ public class HomeController : Controller
         this.repository = repository;
     }
 
-    public async Task<IActionResult> Index()
+    public IActionResult Index()
     {
-        return View(await repository.GetRecentStocks());
+        return View(repository.GetRecentStocks());
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

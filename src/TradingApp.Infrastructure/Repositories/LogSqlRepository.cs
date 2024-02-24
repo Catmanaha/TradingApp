@@ -1,24 +1,21 @@
-using Dapper;
-using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Options;
 using TradingApp.Core.Models;
-using TradingApp.Core.Models.Managers;
 using TradingApp.Core.Repositories;
+using TradingApp.Infrastructure.Data;
 
 namespace TradingApp.Infrastructure.Repositories;
 
 public class LogSqlRepository : ILogRepository
 {
-    private readonly SqlConnection connection;
+    private readonly TradingAppDbContext DBC;
 
-    public LogSqlRepository(IOptions<ConnectionManager> connectionManager)
+    public LogSqlRepository(TradingAppDbContext DBC)
     {
-        this.connection = new SqlConnection(connectionManager.Value.DefaultConnectionString);
+        this.DBC = DBC;
     }
 
-    public async Task<int> CreateAsync(Log log)
+    public async Task CreateAsync(Log log)
     {
-        return await connection.ExecuteAsync(@"insert into Logs(UserId, Url, MethodType, StatusCode, RequestBody, ResponseBody) 
-                                               values(@UserId, @Url, @MethodType, @StatusCode, @RequestBody, @ResponseBody)", log);
+        await DBC.Logs.AddAsync(log);
+        await DBC.SaveChangesAsync();
     }
 }

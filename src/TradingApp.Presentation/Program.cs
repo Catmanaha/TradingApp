@@ -1,8 +1,13 @@
+using System.Reflection;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using TradingApp.Core.Enums;
+using TradingApp.Core.Models;
 using TradingApp.Core.Models.Managers;
 using TradingApp.Core.Repositories;
+using TradingApp.Infrastructure.Data;
 using TradingApp.Infrastructure.Repositories;
 using TradingApp.Presentation.Middlewares;
 
@@ -25,19 +30,32 @@ builder.Services.AddAuthorization(options =>
     });
 });
 
-string connectionStringKey = "TradingAppDb";
-string? connectionString = builder.Configuration.GetConnectionString("DefaultConnectionString");
-
-if (string.IsNullOrEmpty(connectionString))
+builder.Services.AddDbContext<TradingAppDbContext>(options =>
 {
-    throw new NullReferenceException($"No connection string found in appsettings.json with a key '{connectionStringKey}'");
-}
+    string connectionStringKey = "TradingAppDb";
+    string? connectionString = builder.Configuration.GetConnectionString("DefaultConnectionString");
 
-builder.Services.Configure<ConnectionManager>(builder.Configuration.GetSection("ConnectionStrings"));
+    if (string.IsNullOrEmpty(connectionString))
+    {
+        throw new NullReferenceException($"No connection string found in appsettings.json with a key '{connectionStringKey}'");
+    }
+
+    options.UseSqlServer(connectionString, o =>
+    {
+        o.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name);
+    });
+});
+
+builder.Services.AddIdentity<User, IdentityRole<int>>(o =>
+{
+    o.Password.RequiredLength = 8;
+}
+).AddEntityFrameworkStores<TradingAppDbContext>();
+
 builder.Services.Configure<LogManager>(builder.Configuration.GetSection("LoggerManager"));
 
+builder.Services.AddScoped<TradingAppDbContext>();
 builder.Services.AddScoped<IStockRepository, StockSqlRepository>();
-builder.Services.AddScoped<IUserRepository, UserSqlRepository>();
 builder.Services.AddScoped<IUserStockRepository, UserStockSqlRepository>();
 builder.Services.AddScoped<ILogRepository, LogSqlRepository>();
 
@@ -66,4 +84,3 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}");
 
 app.Run();
-
