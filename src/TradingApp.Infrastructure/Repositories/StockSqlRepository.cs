@@ -5,7 +5,7 @@ using TradingApp.Core.Models;
 using TradingApp.Core.Models.Managers;
 using TradingApp.Core.Repositories;
 
-namespace TradingApp.Repositories;
+namespace TradingApp.Infrastructure.Repositories;
 
 public class StockSqlRepository : IStockRepository
 {
@@ -25,5 +25,17 @@ public class StockSqlRepository : IStockRepository
     public async Task<IEnumerable<Stock>> GetAllAsync()
     {
         return await connection.QueryAsync<Stock>("select * from Stocks");
+    }
+
+    public async Task<IEnumerable<Stock>> GetRecentStocks()
+    {
+        return await connection.QueryAsync<Stock>(@"select *
+                                                    from Stocks
+                                                    where Id not in (
+                                                        select top (
+                                                                (select count(*) from Stocks) - 5
+                                                            ) Id
+                                                        from Stocks
+                                                    )");
     }
 }

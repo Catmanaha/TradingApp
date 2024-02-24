@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TradingApp.Core.Models;
 using TradingApp.Core.Repositories;
@@ -17,10 +18,10 @@ public class StockController : Controller
     public async Task<IActionResult> GetAll()
     {
         var getAll = await repository.GetAllAsync();
-
         return View(getAll);
     }
 
+    [Authorize(Policy = "Admins")]
     public IActionResult Create()
     {
         return View();
@@ -29,26 +30,9 @@ public class StockController : Controller
     [HttpPost]
     public async Task<IActionResult> Create(StockDto stock)
     {
-        var errors = new List<string>();
-
-        if (long.IsNegative(stock.MarketCap))
+        if (ModelState.IsValid == false)
         {
-            errors.Add("Market capacity cannot be negative");
-        }
-
-        if (string.IsNullOrEmpty(stock.Name))
-        {
-            errors.Add("Dont leave name empty");
-        }
-
-        if (string.IsNullOrEmpty(stock.Symbol))
-        {
-            errors.Add("Dont leave symbol empty");
-        }
-
-        if (errors.Any())
-        {
-            return View(errors);
+            return View();
         }
 
         await repository.CreateAsync(new Stock

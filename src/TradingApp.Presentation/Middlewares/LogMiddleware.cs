@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Options;
@@ -11,13 +12,11 @@ public class LogMiddleware : IMiddleware
 {
     private readonly ILogRepository repository;
     private readonly IOptionsMonitor<LogManager> optionsMonitor;
-    private readonly IDataProtector dataProtector;
 
-    public LogMiddleware(ILogRepository repository, IDataProtectionProvider dataProtectionProvider, IOptionsMonitor<LogManager> optionsMonitor)
+    public LogMiddleware(ILogRepository repository, IOptionsMonitor<LogManager> optionsMonitor)
     {
         this.repository = repository;
         this.optionsMonitor = optionsMonitor;
-        this.dataProtector = dataProtectionProvider.CreateProtector("IdentityProtection");
     }
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
@@ -28,10 +27,7 @@ public class LogMiddleware : IMiddleware
         }
 
         int userId = default;
-        if (context.Request.Cookies["UserId"] is not null)
-        {
-            userId = int.Parse(dataProtector.Unprotect(context.Request.Cookies["UserId"]!));
-        }
+        int.TryParse(context.User.FindFirstValue("UserId"), out userId);
 
         context.Request.EnableBuffering();
         var requestRead = await new StreamReader(context.Request.Body).ReadToEndAsync();

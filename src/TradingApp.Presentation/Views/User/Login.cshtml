@@ -1,6 +1,7 @@
 @{
     string email = string.Empty;
     string password = string.Empty;
+    string ReturnUrl = ViewData["ReturnUrl"] as string;
 }
 
 <h1>Login</h1>
@@ -8,6 +9,9 @@
 <span class="text-danger">@ViewData["Error"]</span>
 
 <form asp-action="Login" method="post">
+    <div class="text-danger" asp-validation-summary="All"></div>
+
+    <input hidden asp-for="@ReturnUrl" type="text">
     <div class="form-group">
         <label asp-for="@email">Email</label>
         <input asp-for="@email" type="text" class="form-control">

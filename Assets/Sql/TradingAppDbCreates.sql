@@ -10,5 +10,5 @@ values ('BSTG', 'Biostage, Inc.', 12000000),
     ('RHI', 'Robert Half International Inc.', 600000),
     ('HYZD', 'WisdomTree Interest Rate Hedged High Yield Bond Fund', 5800000000);
 
-insert into Users(Email, Name, Surname, Password)
-values('admin@gmail.com', 'admin', 'admin', 'admin')
+insert into Users(Email, Name, Surname, Password, Role)
+values('admin@gmail.com', 'admin', 'admin', 'admin', 1)

@@ -1,13 +1,4 @@
-@model List<string>
-
 @{
-
-  var errors = Model;
-
-  if (Model is null) {
-    errors = new List<string>();
-  }
-  
   string name = string.Empty;
   string symbol = string.Empty;
   long marketCap = 0;
@@ -15,13 +6,9 @@
 
 <h1>Create Stock</h1>
 
-@foreach (string error in errors)
-{
-  <span class="text-danger">@error</span>
-  <br>
-}
-
 <form asp-action="Create" method="post">
+  <div class="text-danger" asp-validation-summary="All"></div>
+
   <div class="form-group">
     <label asp-for="@name">Name</label>
     <input asp-for="@name" type="text" class="form-control">
