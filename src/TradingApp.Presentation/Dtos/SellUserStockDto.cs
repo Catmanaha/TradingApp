@@ -2,16 +2,11 @@ using System.ComponentModel.DataAnnotations;
 
 namespace TradingApp.Presentation.Dtos;
 
-public class UserStockDto
+public class SellUserStockDto
 {
-    public int UserId { get; set; }
-
-    public int StockId { get; set; }
-
-    [Required(ErrorMessage = "StockCount cannot be empty")]
+    [Required]
     [Range(1, int.MaxValue, ErrorMessage = "Count cannot be negative")]
     public int StockCount { get; set; }
-
-    public double StockPrice { get; set; }
+    public int StockId { get; set; }
     public string StockName { get; set; }
 }

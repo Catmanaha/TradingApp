@@ -23,7 +23,6 @@ public class UserStockSqlRepository : IUserStockRepository
         if (stock is null)
         {
             await DBC.UserStocks.AddAsync(model);
-            await DBC.SaveChangesAsync();
         }
         else
         {
@@ -31,9 +30,9 @@ public class UserStockSqlRepository : IUserStockRepository
             stock.TotalPrice += model.TotalPrice;
 
             DBC.UserStocks.Update(stock);
-            await DBC.SaveChangesAsync();
         }
 
+        await DBC.SaveChangesAsync();
         return model;
     }
 
@@ -41,8 +40,8 @@ public class UserStockSqlRepository : IUserStockRepository
     {
         var query = from stock in DBC.Stocks.ToList()
                     join userStock in DBC.UserStocks.ToList() on stock.Id equals userStock.StockId
-                    join user in DBC.Users.ToList() on userStock.UserId equals user.Id
-                    select new { stock.ImageUrl, stock.Name, userStock.TotalPrice, userStock.StockCount };
+                    join user in DBC.Users.ToList() on userStock.UserId equals id
+                    select new { userStock.Id, stock.ImageUrl, stock.Name, userStock.TotalPrice, userStock.StockCount };
 
         var joinData = new List<ExpandoObject>();
         foreach (var item in query)
@@ -58,5 +57,28 @@ public class UserStockSqlRepository : IUserStockRepository
         return joinData;
 
 
+    }
+
+    public async Task<UserStock?> GetByIdAsync(int id)
+    {
+        return await DBC.UserStocks.Where(o => o.Id == id).FirstOrDefaultAsync();
+    }
+
+    public async Task Sell(UserStock userStock, int count)
+    {
+        var result = await DBC.UserStocks.Where(o => o.Id == userStock.Id).FirstOrDefaultAsync();
+
+        var totalCount =  result.StockCount - count;
+
+        if (totalCount == 0) {
+            DBC.UserStocks.Remove(userStock);
+            await DBC.SaveChangesAsync();
+            return;
+        }
+
+        result.StockCount -= count;
+
+        DBC.UserStocks.Update(result);
+        await DBC.SaveChangesAsync();
     }
 }

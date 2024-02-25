@@ -91,6 +91,55 @@ public class UserStockController : Controller
         return View(stocks);
     }
 
+    [Authorize]
+    public IActionResult Sell(string stockName, int stockId)
+    {
+        return View(new SellUserStockViewModel
+        {
+            StockId = stockId,
+            StockName = stockName
+        });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Sell(SellUserStockDto dto)
+    {
+
+        if (!ModelState.IsValid)
+        {
+            return View(new SellUserStockViewModel
+            {
+                StockId = dto.StockId,
+                StockName = dto.StockName
+            });
+        }
+
+        var userStock = await repository.GetByIdAsync(dto.StockId);
+
+        var totalCount = userStock.StockCount - dto.StockCount;
+
+        if (totalCount < 0)
+        {
+            ModelState.AddModelError("Count", "You do not own that much stocks");
+            return View(new SellUserStockViewModel
+            {
+                StockId = dto.StockId,
+                StockName = dto.StockName
+            });
+        }
+
+        var countBefore = userStock.StockCount;
+
+        await repository.Sell(userStock, dto.StockCount);
+        var user = await userManager.GetUserAsync(User);
+        
+        user.Balance += (userStock.TotalPrice / countBefore) * dto.StockCount;
+        user.StocksBalance -= (userStock.TotalPrice / countBefore)  * dto.StockCount;
+        await userManager.UpdateAsync(user);
+
+        return RedirectToAction("Profile", "User");
+    }
+
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
