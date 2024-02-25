@@ -15,18 +15,25 @@ else
         <th scope="col">Name</th>
         <th scope="col">Total Price</th>
         <th scope="col">Count</th>
+        <th scope="col"></th>
       </tr>
     </thead>
     <tbody>
       @foreach (var userStock in Model)
       {
         <tr>
-                    <td><img style="height: 2em; width:2em" src="@Url.Content($"~/StockImages/{userStock.ImageUrl}")" alt="@userStock.Name"></td>
+          <td><img style="height: 2em; width:2em" src="@Url.Content($"~/StockImages/{userStock.ImageUrl}")"
+              alt="@userStock.Name"></td>
           <td>@userStock.Name</td>
           <td>@userStock.TotalPrice</td>
           <td>@userStock.StockCount</td>
+          <td><button onclick="redirectToAction('/UserStock/Sell?stockName=@userStock.Name&stockId=@userStock.Id')" type="button" class="btn btn-danger">Sell</button></td>
         </tr>
       }
     </tbody>
   </table>
+}
+
+@section Scripts {
+  <script src="~/js/site.js" asp-append-version="true"></script>
 }

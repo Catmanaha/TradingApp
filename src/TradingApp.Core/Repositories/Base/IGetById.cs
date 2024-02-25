@@ -1,6 +1,6 @@
 namespace TradingApp.Core.Repositories.Base;
 
-public interface IGetById<T, TId>
+public interface IGetById<T>
 {
-    public Task<T> GetByIdAsync(TId id);
+    public Task<T?> GetByIdAsync(int id);
 }
