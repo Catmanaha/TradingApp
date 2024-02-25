@@ -1,6 +1,6 @@
 @model IEnumerable<dynamic>
 
-<h1>My all Stocks</h1>
+<h1>All my Stocks</h1>
 
 @if (Model.Any() == false)
 {
@@ -16,6 +16,7 @@ else
         <th scope="col">Total Price</th>
         <th scope="col">Count</th>
         <th scope="col"></th>
+        <th scope="col"></th>
       </tr>
     </thead>
     <tbody>
@@ -28,6 +29,7 @@ else
           <td>@userStock.TotalPrice</td>
           <td>@userStock.StockCount</td>
           <td><button onclick="redirectToAction('/UserStock/Sell?stockName=@userStock.Name&stockId=@userStock.Id')" type="button" class="btn btn-danger">Sell</button></td>
+          <td><button onclick="redirectToAction('/Auction/Sell?stockId=@userStock.StockId&userStockId=@userStock.Id')" type="button" class="btn btn-danger">Sell on Auction</button></td>
         </tr>
       }
     </tbody>

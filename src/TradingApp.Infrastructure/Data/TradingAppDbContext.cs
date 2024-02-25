@@ -10,6 +10,8 @@ public class TradingAppDbContext : IdentityDbContext<User, IdentityRole<int>, in
     public DbSet<Log> Logs { get; set; }
     public DbSet<Stock> Stocks { get; set; }
     public DbSet<UserStock> UserStocks { get; set; }
+    public DbSet<Auction> Auctions { get; set; }
+    public DbSet<Bid> Bids { get; set; }
 
     public TradingAppDbContext(DbContextOptions<TradingAppDbContext> options) : base(options) {}
 }

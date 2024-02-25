@@ -1,0 +1,64 @@
+@model AuctionViewModel
+
+@{
+    var fistFromList = Model.Bids.FirstOrDefault();
+}
+
+<h3>Auction from '@Model.AuctionUser.UserName'. Stock: @Model.StockName. Initial Price: @Model.Auction.InitialPrice</h3>
+<h2>Status: @Model.Auction.Status</h2>
+
+<h1>All Bids</h1>
+
+@if (Model.Bids.Any() == false)
+{
+    <span>No stocks found</span>
+}
+else
+{
+    <table class="table table-hover table-dark">
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Bid Amount</th>
+                <th scope="col">Bid Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var bid in Model.Bids)
+            {
+                <tr>
+                    <td>@bid.UserName</td>
+                    <td>@bid.BidAmount</td>
+                    <td>@bid.BidTime</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<br>
+
+@{
+    var check = Model.Auction.Status == AuctionStatusEnum.Open ? "disabled" : "enabled";
+}
+
+@if (Model.Auction.Status != AuctionStatusEnum.Closed)
+{
+    <button onclick="redirectToAction('/Auction/Bid?auctionId=@Model.Auction.Id')" @check type="button"
+        class="btn btn-danger">Bid</button>
+}
+
+@if (Model.AuctionUser.Id == Model.CurrentUser.Id && Model.Auction.Status == AuctionStatusEnum.Open)
+{
+    <button onclick="redirectToAction('/Auction/ChangeStatus?status=@AuctionStatusEnum.Active&id=@Model.Auction.Id')"
+        type="button" class="btn btn-danger">Start</button>
+}
+else if (Model.AuctionUser.Id == Model.CurrentUser.Id && Model.Auction.Status == AuctionStatusEnum.Active)
+{
+    <button onclick="redirectToAction('/Auction/ChangeStatus?status=@AuctionStatusEnum.Closed&id=@Model.Auction.Id')"
+        type="button" class="btn btn-danger">Stop</button>
+}
+
+@section Scripts {
+    <script src="~/js/site.js" asp-append-version="true"></script>
+}

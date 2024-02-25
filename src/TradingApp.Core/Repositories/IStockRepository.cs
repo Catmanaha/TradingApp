@@ -3,7 +3,7 @@ using TradingApp.Core.Repositories.Base;
 
 namespace TradingApp.Core.Repositories;
 
-public interface IStockRepository : IGetAll<Stock>, ICreate<Stock>, IUpdate<Stock>
+public interface IStockRepository : IGetAll<Stock>, ICreate<Stock>, IUpdate<Stock>, IGetById<Stock>
 {
     public IEnumerable<Stock> GetRecentStocks();
 }

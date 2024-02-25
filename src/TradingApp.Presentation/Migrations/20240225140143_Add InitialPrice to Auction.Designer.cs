@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TradingApp.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using TradingApp.Infrastructure.Data;
 namespace TradingApp.Presentation.Migrations
 {
     [DbContext(typeof(TradingAppDbContext))]
-    partial class TradingAppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240225140143_Add InitialPrice to Auction")]
+    partial class AddInitialPricetoAuction
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -175,10 +178,10 @@ namespace TradingApp.Presentation.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<int>("StockId")
+                    b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.Property<int>("UserId")
+                    b.Property<int>("UserStockId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -352,8 +355,8 @@ namespace TradingApp.Presentation.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<double>("StockCount")
-                        .HasColumnType("float");
+                    b.Property<int>("StockCount")
+                        .HasColumnType("int");
 
                     b.Property<int>("StockId")
                         .HasColumnType("int");

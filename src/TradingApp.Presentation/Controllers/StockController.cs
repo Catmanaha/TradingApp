@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TradingApp.Core.Models;
 using TradingApp.Core.Repositories;
-using TradingApp.Presentation.Extensions;
 using TradingApp.Presentation.Dtos;
 
 namespace TradingApp.Presentation.Controllers;

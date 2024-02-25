@@ -1,10 +1,8 @@
-using System.ComponentModel;
-using System.Dynamic;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 using TradingApp.Core.Models;
 using TradingApp.Core.Repositories;
 using TradingApp.Infrastructure.Data;
+using TradingApp.Infrastructure.Extensions;
 
 namespace TradingApp.Infrastructure.Repositories;
 
@@ -19,7 +17,7 @@ public class UserStockSqlRepository : IUserStockRepository
 
     public async Task<UserStock> CreateAsync(UserStock model)
     {
-        var stock = await DBC.UserStocks.Where(o => o.UserId == model.UserId && o.StockId == model.StockId).FirstOrDefaultAsync();
+        var stock = await DBC.UserStocks.FirstOrDefaultAsync(o => o.UserId == model.UserId && o.StockId == model.StockId);
         if (stock is null)
         {
             await DBC.UserStocks.AddAsync(model);
@@ -36,41 +34,29 @@ public class UserStockSqlRepository : IUserStockRepository
         return model;
     }
 
-    public IEnumerable<object> GetAllForUser(int id)
+    public async Task<IEnumerable<object>> GetAllForUser(int id)
     {
-        var query = from stock in DBC.Stocks.ToList()
-                    join userStock in DBC.UserStocks.ToList() on stock.Id equals userStock.StockId
-                    join user in DBC.Users.ToList() on userStock.UserId equals id
-                    select new { userStock.Id, stock.ImageUrl, stock.Name, userStock.TotalPrice, userStock.StockCount };
-
-        var joinData = new List<ExpandoObject>();
-        foreach (var item in query)
-        {
-            IDictionary<string, object> itemExpando = new ExpandoObject();
-            foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(item.GetType()))
-            {
-                itemExpando.Add(property.Name, property.GetValue(item));
-            }
-            joinData.Add(itemExpando as ExpandoObject);
-        }
-
-        return joinData;
-
-
+        var query = from stock in await DBC.Stocks.ToListAsync()
+                    join userStock in await DBC.UserStocks.ToListAsync() on stock.Id equals userStock.StockId
+                    join user in await DBC.Users.Where(o => o.Id == id).ToListAsync() on userStock.UserId equals user.Id
+                    select new { StockId = stock.Id, userStock.Id, stock.ImageUrl, stock.Name, userStock.TotalPrice, userStock.StockCount };
+        
+        return query.Distinct().ToExpandoObjectCollection();
     }
 
     public async Task<UserStock?> GetByIdAsync(int id)
     {
-        return await DBC.UserStocks.Where(o => o.Id == id).FirstOrDefaultAsync();
+        return await DBC.UserStocks.FirstOrDefaultAsync(o => o.Id == id);
     }
 
     public async Task Sell(UserStock userStock, int count)
     {
-        var result = await DBC.UserStocks.Where(o => o.Id == userStock.Id).FirstOrDefaultAsync();
+        var result = await DBC.UserStocks.FirstOrDefaultAsync(o => o.Id == userStock.Id);
 
-        var totalCount =  result.StockCount - count;
+        var totalCount = result.StockCount - count;
 
-        if (totalCount == 0) {
+        if (totalCount == 0)
+        {
             DBC.UserStocks.Remove(userStock);
             await DBC.SaveChangesAsync();
             return;
@@ -79,6 +65,12 @@ public class UserStockSqlRepository : IUserStockRepository
         result.StockCount -= count;
 
         DBC.UserStocks.Update(result);
+        await DBC.SaveChangesAsync();
+    }
+
+    public async Task UpdateAsync(UserStock model)
+    {
+        DBC.UserStocks.Update(model);
         await DBC.SaveChangesAsync();
     }
 }
