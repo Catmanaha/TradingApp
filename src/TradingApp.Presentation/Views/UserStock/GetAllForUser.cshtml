@@ -1,4 +1,4 @@
-@model IEnumerable<UserStock>
+@model IEnumerable<dynamic>
 
 <h1>My all Stocks</h1>
 
@@ -11,7 +11,9 @@ else
   <table class="table table-hover table-dark">
     <thead>
       <tr>
+        <th style="width: 3em;" scope="col"></th>
         <th scope="col">Name</th>
+        <th scope="col">Total Price</th>
         <th scope="col">Count</th>
       </tr>
     </thead>
@@ -19,7 +21,9 @@ else
       @foreach (var userStock in Model)
       {
         <tr>
-          <td>@userStock.StockName</td>
+                    <td><img style="height: 2em; width:2em" src="@Url.Content($"~/StockImages/{userStock.ImageUrl}")" alt="@userStock.Name"></td>
+          <td>@userStock.Name</td>
+          <td>@userStock.TotalPrice</td>
           <td>@userStock.StockCount</td>
         </tr>
       }

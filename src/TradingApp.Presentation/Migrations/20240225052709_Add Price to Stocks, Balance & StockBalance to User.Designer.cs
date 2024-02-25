@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TradingApp.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using TradingApp.Infrastructure.Data;
 namespace TradingApp.Presentation.Migrations
 {
     [DbContext(typeof(TradingAppDbContext))]
-    partial class TradingAppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240225052709_Add Price to Stocks, Balance & StockBalance to User")]
+    partial class AddPricetoStocksBalanceStockBalancetoUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -302,8 +305,8 @@ namespace TradingApp.Presentation.Migrations
                     b.Property<int>("StockId")
                         .HasColumnType("int");
 
-                    b.Property<double>("TotalPrice")
-                        .HasColumnType("float");
+                    b.Property<string>("StockName")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");

@@ -5,5 +5,5 @@ namespace TradingApp.Core.Repositories;
 
 public interface IUserStockRepository : ICreate<UserStock>
 {
-    public IEnumerable<UserStock> GetAllForUser(int id);
+    public IEnumerable<object> GetAllForUser(int id);
 };
