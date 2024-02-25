@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TradingApp.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using TradingApp.Infrastructure.Data;
 namespace TradingApp.Presentation.Migrations
 {
     [DbContext(typeof(TradingAppDbContext))]
-    partial class TradingAppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240225121940_Add UserId to Auction")]
+    partial class AddUserIdtoAuction
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -165,9 +168,6 @@ namespace TradingApp.Presentation.Migrations
 
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("datetime2");
-
-                    b.Property<double>("InitialPrice")
-                        .HasColumnType("float");
 
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("datetime2");
@@ -352,8 +352,8 @@ namespace TradingApp.Presentation.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<double>("StockCount")
-                        .HasColumnType("float");
+                    b.Property<int>("StockCount")
+                        .HasColumnType("int");
 
                     b.Property<int>("StockId")
                         .HasColumnType("int");

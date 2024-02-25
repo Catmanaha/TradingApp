@@ -27,6 +27,11 @@ public class StockSqlRepository : IStockRepository
         return await DBC.Stocks.ToListAsync();
     }
 
+    public async Task<Stock?> GetByIdAsync(int id)
+    {
+        return await DBC.Stocks.FirstOrDefaultAsync(o => o.Id == id);
+    }
+
     public IEnumerable<Stock> GetRecentStocks()
     {
         return DBC.Stocks.AsEnumerable().TakeLast(5);

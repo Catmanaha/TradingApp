@@ -32,6 +32,10 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Stock"
                                 asp-action="GetAll">Stocks</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Auction"
+                                asp-action="GetAll">Auctions</a>
+                        </li>
                         @if (isAdmin)
                         {
                             <li class="nav-item">
@@ -55,6 +59,8 @@
                                         asp-action="Profile">Profile</a>
                                     <a class="dropdown-item text-dark" asp-area="" asp-controller="UserStock"
                                         asp-action="GetAllForUser">My Stocks</a>
+                                    <a class="dropdown-item text-dark" asp-area="" asp-controller="Auction"
+                                        asp-action="GetAllForUser">My Auctions</a>
                                 </div>
                             </li>
                             <li class="nav-item">

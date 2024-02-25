@@ -53,6 +53,8 @@ builder.Services.ConfigureApplicationCookie(o => {
 builder.Services.Configure<LogManager>(builder.Configuration.GetSection("LoggerManager"));
 
 builder.Services.AddScoped<TradingAppDbContext>();
+builder.Services.AddScoped<IBidRepository, BidSqlRepository>();
+builder.Services.AddScoped<IAuctionRepository, AuctionSqlRepository>();
 builder.Services.AddScoped<IStockRepository, StockSqlRepository>();
 builder.Services.AddScoped<IUserStockRepository, UserStockSqlRepository>();
 builder.Services.AddScoped<ILogRepository, LogSqlRepository>();

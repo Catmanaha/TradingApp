@@ -1,12 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using TradingApp.Core.Models;
 using TradingApp.Core.Repositories;
 using TradingApp.Presentation.Dtos;
-using TradingApp.Presentation.Extensions;
 using TradingApp.Presentation.ViewModels;
 
 namespace TradingApp.Presentation.Controllers;
@@ -80,14 +77,15 @@ public class UserStockController : Controller
     }
 
     [Authorize]
-    public IActionResult GetAllForUser()
+    public async Task<IActionResult> GetAllForUser()
     {
         if (userManager.GetUserId(User) is null)
         {
             return RedirectToAction("Login", "User");
         }
 
-        var stocks = repository.GetAllForUser(int.Parse(userManager.GetUserId(User)));
+        var stocks = await repository.GetAllForUser(int.Parse(userManager.GetUserId(User)));
+        
         return View(stocks);
     }
 

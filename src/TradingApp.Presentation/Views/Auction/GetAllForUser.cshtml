@@ -1,0 +1,47 @@
+@model IEnumerable<dynamic>
+
+@{
+  DateTime defaultEndTime = default;
+}
+
+<h1>All my auctions</h1>
+
+@if (Model.Any() == false)
+{
+  <span>No auctions found</span>
+}
+else
+{
+  <table class="table table-hover table-dark">
+    <thead>
+      <tr>
+        <th scope="col">UserName</th>
+        <th scope="col">StockName</th>
+        <th scope="col">Initial Price</th>
+        <th scope="col">Status</th>
+        <th scope="col">StartTime</th>
+        <th scope="col">EndTime</th>
+        <th scope="col"></th>
+      </tr>
+    </thead>
+    <tbody>
+      @foreach (var auction in Model)
+      {
+        <tr>
+          <td>@auction.UserName</td>
+          <td>@auction.StockName</td>
+          <td>@auction.InitialPrice</td>
+          <td>@auction.Status</td>
+          <td>@auction.StartTime</td>
+          <td>@(auction.EndTime == defaultEndTime ? " " : auction.EndTime)</td>
+          <td><button onclick="redirectToAction('/Auction/Auction?id=@auction.Id')" type="button"
+              class="btn btn-danger">Enter</button></td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}
+
+@section Scripts {
+  <script src="~/js/site.js" asp-append-version="true"></script>
+}
