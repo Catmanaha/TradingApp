@@ -1,14 +1,32 @@
 @model User
 
-<div class="card" style="width: 18rem;">
+<div class="card" style="width: 24rem;">
   <ul class="list-group list-group-flush">
     <li class="list-group-item">Name: @Model.UserName</li>
     <li class="list-group-item">Email: @Model.Email</li>
   </ul>
 
-  <button onclick="redirectToAction('/User/ChangePassword')" type="button" class="btn btn-dark">Change Password</button>
 </div>
-
+<br>
+<button onclick="redirectToAction('/User/ChangePassword')" type="button" class="btn btn-dark">Change Password</button>
+<br>
+<br>
+<div class="input-group mb-3">
+  <div class="input-group-prepend">
+    <span class="input-group-text" id="basic-addon3">Balance</span>
+  </div>
+  <input disabled value="@Model.Balance" type="text" class="form-control" id="basic-url"
+    aria-describedby="basic-addon3">
+  <button type="button" class="btn btn-dark" onclick="redirectToAction('/User/CashIn')">Cash In</button>
+</div>
+<div class="input-group mb-3">
+  <div class="input-group-prepend">
+    <span class="input-group-text" id="basic-addon3">Stocks Balance</span>
+  </div>
+  <input disabled value="@Model.StocksBalance" type="text" class="form-control" id="basic-url"
+    aria-describedby="basic-addon3">
+  <button type="button" class="btn btn-dark" onclick="redirectToAction('/UserStock/GetAllForUser')">My Stocks</button>
+</div>
 @section Scripts {
   <script src="~/js/site.js" asp-append-version="true"></script>
 }

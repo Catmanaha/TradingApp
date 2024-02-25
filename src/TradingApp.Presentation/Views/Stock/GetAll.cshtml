@@ -14,16 +14,18 @@ else
         <th style="width: 3em;" scope="col"></th>
         <th scope="col">Symbol</th>
         <th scope="col">Name</th>
+        <th scope="col">Price</th>
         <th scope="col">Market Capacity</th>
       </tr>
     </thead>
     <tbody>
       @foreach (var stock in Model)
       {
-        <tr style="cursor: pointer" onclick="redirectToAction('/UserStock/Create?stockName=@stock.Name&stockId=@stock.Id')">
+        <tr style="cursor: pointer" onclick="redirectToAction('/UserStock/Create?stockName=@stock.Name&stockId=@stock.Id&price=@stock.Price')">
           <td><img style="height: 2em; width:2em" src="@Url.Content($"~/StockImages/{stock.ImageUrl}")" alt="@stock.Name"></td>
           <td>@stock.Symbol</td>
           <td>@stock.Name</td>
+          <td>@stock.Price</td>
           <td>@stock.MarketCap</td>
         </tr>
       }

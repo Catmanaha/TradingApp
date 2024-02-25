@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TradingApp.Core.Models;
 using TradingApp.Core.Repositories;
+using TradingApp.Presentation.Extensions;
 using TradingApp.Presentation.Dtos;
 
 namespace TradingApp.Presentation.Controllers;
@@ -41,12 +42,13 @@ public class StockController : Controller
         {
             MarketCap = stock.MarketCap,
             Symbol = stock.Symbol,
+            Price = stock.Price,
             Name = stock.Name,
         });
 
         var fileExtension = new FileInfo(stock.StockImage.FileName).Extension;
         var fileName = $"{newStock.Id}{fileExtension}";
-        var destination = $"../../Assets/StockImages/{fileName}";
+        var destination = $"wwwroot/StockImages/{fileName}";
 
         newStock.ImageUrl = fileName;
         await repository.UpdateAsync(newStock);

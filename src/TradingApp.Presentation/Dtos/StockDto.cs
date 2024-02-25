@@ -14,5 +14,9 @@ public class StockDto
     [Range(0, long.MaxValue, ErrorMessage = "Market Capacity cannot be negative")]
     public long MarketCap { get; set; }
 
+    [Required(ErrorMessage = "Price cannot be empty")]
+    [Range(0, double.MaxValue, ErrorMessage = "Price cannot be negative")]
+    public double Price { get; set; }
+
     public IFormFile? StockImage { get; set; }
 }

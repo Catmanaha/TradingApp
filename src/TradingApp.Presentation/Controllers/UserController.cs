@@ -78,6 +78,26 @@ public class UserController : Controller
         return RedirectToAction("Login");
     }
 
+    public async Task<IActionResult> CreateAdmin() {
+        var user = new User
+        {
+            UserName = "Admin",
+            Email = "admin@gmail.com"
+        };
+
+        var result = await userManager.CreateAsync(user, "Admin123!");
+
+        var userRole = new IdentityRole<int>
+        {
+            Name = UserRolesEnum.Admin.ToString()
+        };
+
+        await roleManager.CreateAsync(userRole);
+        await userManager.AddToRoleAsync(user, UserRolesEnum.Admin.ToString());
+
+        return Ok();
+    }
+
     public IActionResult Login(string? ReturnUrl)
     {
         ViewData["ReturnUrl"] = ReturnUrl;
@@ -114,21 +134,25 @@ public class UserController : Controller
     }
 
     [Authorize]
-    public IActionResult ChangePassword() {
+    public IActionResult ChangePassword()
+    {
         return View();
     }
 
     [HttpPost]
-    public async Task<IActionResult> ChangePassword(ChangePasswordDto dto) {
-        if (ModelState.IsValid == false) {
+    public async Task<IActionResult> ChangePassword(ChangePasswordDto dto)
+    {
+        if (ModelState.IsValid == false)
+        {
             return View();
         }
- 
+
         var user = await userManager.GetUserAsync(User);
 
         var result = await userManager.ChangePasswordAsync(user, dto.CurrentPassword, dto.NewPassword);
-        
-        if (result.Succeeded == false) {
+
+        if (result.Succeeded == false)
+        {
             foreach (var error in result.Errors)
             {
                 ModelState.AddModelError(error.Code, error.Description);
@@ -146,6 +170,25 @@ public class UserController : Controller
         var user = await userManager.GetUserAsync(User);
 
         return View(user);
+    }
+
+    [Authorize]
+    public async Task<IActionResult> CashIn()
+    {
+        var user = await userManager.GetUserAsync(User);
+        
+        return View(user);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CashIn(CashInDto dto)
+    {
+        var user = await userManager.GetUserAsync(User);
+        user.Balance += dto.AmoutToAdd;
+
+        await userManager.UpdateAsync(user);
+
+        return RedirectToAction("Profile");
     }
 
     public IActionResult AccessDenied()
