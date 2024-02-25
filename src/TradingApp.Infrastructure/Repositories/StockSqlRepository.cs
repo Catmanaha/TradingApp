@@ -14,10 +14,12 @@ public class StockSqlRepository : IStockRepository
         this.DBC = DBC;
     }
 
-    public async Task CreateAsync(Stock stock)
+    public async Task<Stock> CreateAsync(Stock stock)
     {
         await DBC.Stocks.AddAsync(stock);
         await DBC.SaveChangesAsync();
+
+        return stock;
     }
 
     public async Task<IEnumerable<Stock>> GetAllAsync()
@@ -30,4 +32,9 @@ public class StockSqlRepository : IStockRepository
         return DBC.Stocks.AsEnumerable().TakeLast(5);
     }
 
+    public async Task UpdateAsync(Stock model)
+    {
+        DBC.Stocks.Update(model);
+        await DBC.SaveChangesAsync();
+    }
 }

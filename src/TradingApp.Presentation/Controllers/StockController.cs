@@ -18,6 +18,7 @@ public class StockController : Controller
     public async Task<IActionResult> GetAll()
     {
         var getAll = await repository.GetAllAsync();
+        
         return View(getAll);
     }
 
@@ -35,12 +36,23 @@ public class StockController : Controller
             return View();
         }
 
-        await repository.CreateAsync(new Stock
+
+        var newStock = await repository.CreateAsync(new Stock
         {
             MarketCap = stock.MarketCap,
             Symbol = stock.Symbol,
-            Name = stock.Name
+            Name = stock.Name,
         });
+
+        var fileExtension = new FileInfo(stock.StockImage.FileName).Extension;
+        var fileName = $"{newStock.Id}{fileExtension}";
+        var destination = $"../../Assets/StockImages/{fileName}";
+
+        newStock.ImageUrl = fileName;
+        await repository.UpdateAsync(newStock);
+
+        using var fileStream = System.IO.File.Create(destination);
+        await stock.StockImage.CopyToAsync(fileStream);
 
         return RedirectToAction("GetAll");
     }

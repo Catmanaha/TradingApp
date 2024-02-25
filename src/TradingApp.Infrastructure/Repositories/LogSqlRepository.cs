@@ -13,9 +13,11 @@ public class LogSqlRepository : ILogRepository
         this.DBC = DBC;
     }
 
-    public async Task CreateAsync(Log log)
+    public async Task<Log> CreateAsync(Log log)
     {
         await DBC.Logs.AddAsync(log);
         await DBC.SaveChangesAsync();
+
+        return log;
     }
 }

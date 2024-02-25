@@ -1,6 +1,5 @@
 using System.Reflection;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TradingApp.Core.Enums;
@@ -15,12 +14,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-.AddCookie(options =>
-{
-    options.LoginPath = "/User/Login";
-    options.AccessDeniedPath = "/User/AccessDenied";
-});
 
 builder.Services.AddAuthorization(options =>
 {
@@ -51,6 +44,11 @@ builder.Services.AddIdentity<User, IdentityRole<int>>(o =>
     o.Password.RequiredLength = 8;
 }
 ).AddEntityFrameworkStores<TradingAppDbContext>();
+
+builder.Services.ConfigureApplicationCookie(o => {
+    o.AccessDeniedPath = "/User/AccessDenied";
+    o.LoginPath = "/User/Login";
+});
 
 builder.Services.Configure<LogManager>(builder.Configuration.GetSection("LoggerManager"));
 

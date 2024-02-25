@@ -57,10 +57,11 @@ public class UserController : Controller
 
             foreach (var error in result.Errors)
             {
-                ModelState.AddModelError(error.Code, error.Description);   
+                ModelState.AddModelError(error.Code, error.Description);
             }
 
-            if (ModelState.Any()) {
+            if (ModelState.Any())
+            {
                 return View();
             }
 
@@ -110,6 +111,33 @@ public class UserController : Controller
 
         return RedirectPermanent(userdto.ReturnUrl ?? "/");
 
+    }
+
+    [Authorize]
+    public IActionResult ChangePassword() {
+        return View();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ChangePassword(ChangePasswordDto dto) {
+        if (ModelState.IsValid == false) {
+            return View();
+        }
+ 
+        var user = await userManager.GetUserAsync(User);
+
+        var result = await userManager.ChangePasswordAsync(user, dto.CurrentPassword, dto.NewPassword);
+        
+        if (result.Succeeded == false) {
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(error.Code, error.Description);
+            }
+
+            return View();
+        }
+
+        return RedirectToAction("Profile");
     }
 
     [Authorize]

@@ -13,10 +13,12 @@ public class UserStockSqlRepository : IUserStockRepository
         this.DBC = DBC;
     }
 
-    public async Task CreateAsync(UserStock model)
+    public async Task<UserStock> CreateAsync(UserStock model)
     {
         await DBC.UserStocks.AddAsync(model);
         await DBC.SaveChangesAsync();
+
+        return model;
     }
 
     public IEnumerable<UserStock> GetAllForUser(int id)
