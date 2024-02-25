@@ -24,6 +24,7 @@ public class UserStockController : Controller
     {
         return View(new UserStockViewModel
         {
+            UserId = int.Parse(userManager.GetUserId(User)),
             StockName = stockName,
             StockId = stockId
         });
@@ -32,7 +33,6 @@ public class UserStockController : Controller
     [HttpPost]
     public async Task<IActionResult> Create(UserStockDto userStockDto)
     {
-
         if (ModelState.IsValid == false)
         {
             return View();
@@ -41,6 +41,7 @@ public class UserStockController : Controller
         await repository.CreateAsync(new UserStock
         {
             UserId = userStockDto.UserId,
+            StockName = userStockDto.StockName,
             StockId = userStockDto.StockId,
             StockCount = userStockDto.StockCount
         });

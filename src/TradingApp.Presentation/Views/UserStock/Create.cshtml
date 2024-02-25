@@ -1,13 +1,7 @@
 @model UserStockViewModel
 
 @{
-
-    if (User.FindFirst("UserId") is null) {
-        Context.Response.Redirect("/User/Login");
-        return;
-    }
-
-    int userId = int.Parse(User.FindFirst("UserId").Value);
+    int userId = Model.UserId;
     int stockId = Model.StockId;
     string stockName = Model.StockName;
     int stockCount = 0;

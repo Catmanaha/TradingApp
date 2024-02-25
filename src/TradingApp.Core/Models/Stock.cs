@@ -6,4 +6,5 @@ public class Stock
     public string? Symbol { get; set; }
     public string? Name { get; set; }
     public long MarketCap { get; set; }
+    public string? ImageUrl { get; set; }
 }

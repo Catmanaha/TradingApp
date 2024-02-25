@@ -5,4 +5,10 @@
     <li class="list-group-item">Name: @Model.UserName</li>
     <li class="list-group-item">Email: @Model.Email</li>
   </ul>
+
+  <button onclick="redirectToAction('/User/ChangePassword')" type="button" class="btn btn-dark">Change Password</button>
 </div>
+
+@section Scripts {
+  <script src="~/js/site.js" asp-append-version="true"></script>
+}
