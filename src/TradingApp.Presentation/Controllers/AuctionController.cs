@@ -76,7 +76,6 @@ public class AuctionController : Controller
         var auction = await repository.GetByIdAsync(id);
         auction.Status = status;
 
-        await repository.UpdateAsync(auction);
 
         if (status == AuctionStatusEnum.Closed)
         {
@@ -84,6 +83,7 @@ public class AuctionController : Controller
 
             if (highestBid is null)
             {
+                await repository.UpdateAsync(auction);
                 return RedirectToAction("Auction", new { id });
             }
 
@@ -107,6 +107,9 @@ public class AuctionController : Controller
             userAuction.Balance += highestBid.BidAmount;
             await userManager.UpdateAsync(userAuction);
         }
+
+        auction.EndTime = DateTime.Now;
+        await repository.UpdateAsync(auction);
 
         return RedirectToAction("Auction", new { id });
     }
@@ -203,8 +206,7 @@ public class AuctionController : Controller
             });
         }
 
-        userStock.StockCount -= dto.Count;
-        await userStockRepository.UpdateAsync(userStock);
+        await userStockRepository.Sell(userStock, dto.Count);
 
         auction.InitialPrice *= dto.Count;
 
