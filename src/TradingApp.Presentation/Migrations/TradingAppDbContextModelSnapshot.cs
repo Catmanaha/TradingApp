@@ -175,8 +175,9 @@ namespace TradingApp.Presentation.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<int>("StockId")
-                        .HasColumnType("int");
+                    b.Property<string>("StockUuid")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -240,34 +241,6 @@ namespace TradingApp.Presentation.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Logs");
-                });
-
-            modelBuilder.Entity("TradingApp.Core.Models.Stock", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("MarketCap")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<double>("Price")
-                        .HasColumnType("float");
-
-                    b.Property<string>("Symbol")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Stocks");
                 });
 
             modelBuilder.Entity("TradingApp.Core.Models.User", b =>
@@ -355,8 +328,9 @@ namespace TradingApp.Presentation.Migrations
                     b.Property<double>("StockCount")
                         .HasColumnType("float");
 
-                    b.Property<int>("StockId")
-                        .HasColumnType("int");
+                    b.Property<string>("StockUuid")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<double>("TotalPrice")
                         .HasColumnType("float");

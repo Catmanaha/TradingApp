@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using TradingApp.Core.Models;
 using TradingApp.Core.Repositories;
 using TradingApp.Infrastructure.Data;
-using TradingApp.Infrastructure.Extensions;
 
 namespace TradingApp.Infrastructure.Repositories;
 
@@ -23,42 +22,13 @@ public class AuctionSqlRepository : IAuctionRepository
         return model;
     }
 
-    public async Task<IEnumerable<object>> GetAllAsync()
-    {
-        var query = from auction in await DBC.Auctions.ToListAsync()
-                    join user in await DBC.Users.ToListAsync() on auction.UserId equals user.Id
-                    join stock in await DBC.Stocks.ToListAsync() on auction.StockId equals stock.Id
-                    select new
-                    {
-                        StockName = stock.Name,
-                        auction.InitialPrice,
-                        user.UserName,
-                        auction.Status,
-                        auction.StartTime,
-                        auction.EndTime,
-                        auction.Id
-                    };
-
-        return query.ToExpandoObjectCollection();
+    public async Task<IEnumerable<Auction>> GetAllAsync() {
+        return await DBC.Auctions.ToListAsync();
     }
 
-    public async Task<IEnumerable<object>> GetAllForUser(int id)
+    public async Task<IEnumerable<Auction>> GetAllByIdAsync(int id)
     {
-        var query = from auction in await DBC.Auctions.ToListAsync()
-                    join stock in await DBC.Stocks.ToListAsync() on auction.StockId equals stock.Id
-                    join user in await DBC.Users.Where(o => o.Id == id).ToListAsync() on auction.UserId equals user.Id
-                    select new
-                    {
-                        StockName = stock.Name,
-                        auction.InitialPrice,
-                        user.UserName,
-                        auction.Status,
-                        auction.StartTime,
-                        auction.EndTime,
-                        auction.Id
-                    };
-
-        return query.ToExpandoObjectCollection();
+        return await DBC.Auctions.Where(o => o.Id == id).ToListAsync();
     }
 
     public async Task<Auction?> GetByIdAsync(int id)

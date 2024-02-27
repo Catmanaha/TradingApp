@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using TradingApp.Core.Models;
 using TradingApp.Core.Repositories;
+using TradingApp.Core.Services;
 using TradingApp.Presentation.Dtos;
 using TradingApp.Presentation.ViewModels;
 
@@ -12,22 +13,28 @@ public class UserStockController : Controller
 {
     private readonly IUserStockRepository repository;
     private readonly UserManager<User> userManager;
+    private readonly IUserStockService userStockService;
 
-    public UserStockController(IUserStockRepository repository, UserManager<User> userManager)
+    public UserStockController(
+        IUserStockRepository repository,
+        UserManager<User> userManager,
+        IUserStockService userStockService
+    )
     {
         this.repository = repository;
         this.userManager = userManager;
+        this.userStockService = userStockService;
     }
 
     [Authorize]
-    public IActionResult Create(string stockName, int stockId, double price)
+    public IActionResult Create(string stockName, string stockUuid, double price)
     {
         return View(new UserStockViewModel
         {
             UserId = int.Parse(userManager.GetUserId(User)),
             Price = price,
             StockName = stockName,
-            StockId = stockId
+            StockUuid = stockUuid
         });
     }
 
@@ -41,7 +48,7 @@ public class UserStockController : Controller
                 UserId = int.Parse(userManager.GetUserId(User)),
                 Price = userStockDto.StockPrice,
                 StockName = userStockDto.StockName,
-                StockId = userStockDto.StockId
+                StockUuid = userStockDto.StockUuid
             });
         }
 
@@ -57,7 +64,7 @@ public class UserStockController : Controller
                 UserId = int.Parse(userManager.GetUserId(User)),
                 Price = userStockDto.StockPrice,
                 StockName = userStockDto.StockName,
-                StockId = userStockDto.StockId
+                StockUuid = userStockDto.StockUuid
             });
         }
 
@@ -65,10 +72,10 @@ public class UserStockController : Controller
         user.Balance = newUserBalace;
         await userManager.UpdateAsync(user);
 
-        await repository.CreateAsync(new UserStock
+        await userStockService.CreateAsync(new UserStock
         {
             UserId = userStockDto.UserId,
-            StockId = userStockDto.StockId,
+            StockUuid = userStockDto.StockUuid,
             StockCount = userStockDto.StockCount,
             TotalPrice = totalPrice
         });
@@ -84,17 +91,17 @@ public class UserStockController : Controller
             return RedirectToAction("Login", "User");
         }
 
-        var stocks = await repository.GetAllForUser(int.Parse(userManager.GetUserId(User)));
-        
+        var stocks = await userStockService.GetAllForUser(int.Parse(userManager.GetUserId(User)));
+
         return View(stocks);
     }
 
     [Authorize]
-    public IActionResult Sell(string stockName, int stockId)
+    public IActionResult Sell(string stockName, int stockUuid)
     {
         return View(new SellUserStockViewModel
         {
-            StockId = stockId,
+            StockUuid = stockUuid,
             StockName = stockName
         });
     }
@@ -107,12 +114,12 @@ public class UserStockController : Controller
         {
             return View(new SellUserStockViewModel
             {
-                StockId = dto.StockId,
+                StockUuid = dto.StockUuid,
                 StockName = dto.StockName
             });
         }
 
-        var userStock = await repository.GetByIdAsync(dto.StockId);
+        var userStock = await repository.GetByIdAsync(dto.StockUuid);
 
         var totalCount = userStock.StockCount - dto.StockCount;
 
@@ -121,7 +128,7 @@ public class UserStockController : Controller
             ModelState.AddModelError("Count", "You do not own that much stocks");
             return View(new SellUserStockViewModel
             {
-                StockId = dto.StockId,
+                StockUuid = dto.StockUuid,
                 StockName = dto.StockName
             });
         }
@@ -130,9 +137,9 @@ public class UserStockController : Controller
 
         await repository.Sell(userStock, dto.StockCount);
         var user = await userManager.GetUserAsync(User);
-        
+
         user.Balance += (userStock.TotalPrice / countBefore) * dto.StockCount;
-        user.StocksBalance -= (userStock.TotalPrice / countBefore)  * dto.StockCount;
+        user.StocksBalance -= (userStock.TotalPrice / countBefore) * dto.StockCount;
         await userManager.UpdateAsync(user);
 
         return RedirectToAction("Profile", "User");

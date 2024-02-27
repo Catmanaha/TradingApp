@@ -11,7 +11,7 @@
     <input hidden asp-for="@auctionId" type="text" class="form-control">
     <div class="form-group">
         <label asp-for="@bidAmount">Bid Amount</label>
-        <input asp-for="@bidAmount" value=@bidAmount type="number" class="form-control">
+        <input asp-for="@bidAmount" value=@bidAmount type="number" step="any" class="form-control">
     </div>
     <br>
     <button type="submit" class="btn btn-primary">Submit</button>

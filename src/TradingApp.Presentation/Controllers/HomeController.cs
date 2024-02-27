@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using TradingApp.Core.Enums;
 using TradingApp.Core.Repositories;
 
 namespace TradingApp.Presentation.Controllers;
@@ -14,7 +15,7 @@ public class HomeController : Controller
 
     public IActionResult Index()
     {
-        return View(repository.GetRecentStocks());
+        return View();
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

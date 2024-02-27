@@ -1,0 +1,19 @@
+@model Stock
+
+<div style="background-color: @Model.Color;">
+    <h1>
+        <img style="width: 1.5em" src="@Model.IconUrl" alt="@Model.Name">
+        @Model.Name
+    </h1>
+
+    <h2>Symbol: @Model.Symbol</h2>
+    <h2>Price: @Model.Price $</h2>
+    <h2>Change: @Model.Change</h2>
+    <h2>24h Volume: @Model._24hVolume</h2>
+    <button onclick="redirectToAction('/Stock/GetPriceHistory?id=@Model.Uuid')" type="button" class="btn btn-primary">Go to @Model.Name Price History</button>
+    <button onclick="redirectToAction('/Stock/GetOHCL?id=@Model.Uuid')" type="button" class="btn btn-primary">Go to @Model.Name Price OHCL</button>
+</div>
+
+@section Scripts {
+  <script src="~/js/site.js" asp-append-version="true"></script>
+}

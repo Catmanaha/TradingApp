@@ -1,9 +1,5 @@
 @model AuctionViewModel
 
-@{
-    var fistFromList = Model.Bids.FirstOrDefault();
-}
-
 <h3>Auction from '@Model.AuctionUser.UserName'. Stock: @Model.StockName. Initial Price: @Model.Auction.InitialPrice</h3>
 <h2>Status: @Model.Auction.Status</h2>
 

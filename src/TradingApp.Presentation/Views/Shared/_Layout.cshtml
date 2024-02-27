@@ -36,13 +36,6 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Auction"
                                 asp-action="GetAll">Auctions</a>
                         </li>
-                        @if (isAdmin)
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Stock" asp-action="Create">Create
-                                    Stock</a>
-                            </li>
-                        }
 
                     </ul>
                     <ul class="navbar-nav ms-auto">
@@ -93,6 +86,7 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://cdn.datatables.net/v/bs5/dt-2.0.1/datatables.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 

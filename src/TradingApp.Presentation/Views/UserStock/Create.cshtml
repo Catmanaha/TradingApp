@@ -2,7 +2,7 @@
 
 @{
     int userId = Model.UserId;
-    int stockId = Model.StockId;
+    string stockUuid = Model.StockUuid;
     double stockPrice = Model.Price;
     string stockName = Model.StockName;
     int stockCount = 0;
@@ -15,7 +15,7 @@
     
     <input hidden asp-for="@stockName" type="text" class="form-control">
     <input hidden asp-for="@userId" type="text" class="form-control">
-    <input hidden asp-for="@stockId" type="text" class="form-control">
+    <input hidden asp-for="@stockUuid" type="text" class="form-control">
     <input hidden asp-for="@stockPrice" type="text" class="form-control">
     <div class="form-group">
         <label asp-for="@stockCount">Count</label>

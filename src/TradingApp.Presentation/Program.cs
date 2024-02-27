@@ -6,8 +6,10 @@ using TradingApp.Core.Enums;
 using TradingApp.Core.Models;
 using TradingApp.Core.Models.Managers;
 using TradingApp.Core.Repositories;
+using TradingApp.Core.Services;
 using TradingApp.Infrastructure.Data;
 using TradingApp.Infrastructure.Repositories;
+using TradingApp.Infrastructure.Services;
 using TradingApp.Presentation.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -52,7 +54,11 @@ builder.Services.ConfigureApplicationCookie(o => {
 
 builder.Services.Configure<LogManager>(builder.Configuration.GetSection("LoggerManager"));
 
+builder.Services.AddScoped<HttpClient>();
 builder.Services.AddScoped<TradingAppDbContext>();
+builder.Services.AddScoped<IBidService, BidService>();
+builder.Services.AddScoped<IAuctionService, AuctionService>();
+builder.Services.AddScoped<IUserStockService, UserStockService>();
 builder.Services.AddScoped<IBidRepository, BidSqlRepository>();
 builder.Services.AddScoped<IAuctionRepository, AuctionSqlRepository>();
 builder.Services.AddScoped<IStockRepository, StockSqlRepository>();

@@ -8,11 +8,11 @@
 
 <form asp-action="Sell" method="post">
     <div class="text-danger" asp-validation-summary="All"></div>
-    <input hidden asp-for="@Model.StockId" type="text" class="form-control">
+    <input hidden asp-for="@Model.StockUuid" type="text" class="form-control">
     <input hidden asp-for="@Model.StockName" type="text" class="form-control">
     <div class="form-group">
         <label asp-for="@stockCount">Count</label>
-        <input asp-for="@stockCount" value=@stockCount type="number" class="form-control">
+        <input asp-for="@stockCount" value=@stockCount type="number" step="any" class="form-control">
     </div>
     <br>
     <button type="submit" class="btn btn-primary">Submit</button>
