@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using TradingApp.Core.Models;
 using TradingApp.Core.Repositories;
 using TradingApp.Infrastructure.Data;
-using TradingApp.Infrastructure.Extensions;
 
 namespace TradingApp.Infrastructure.Repositories;
 
@@ -23,30 +22,19 @@ public class BidSqlRepository : IBidRepository
         return model;
     }
 
-    public async Task<IEnumerable<object>> GetAllForAuction(int id)
+    public async Task<IEnumerable<Bid>> GetAllAsync()
     {
-        var query = from bid in await DBC.Bids.ToListAsync()
-                    join auction in await DBC.Auctions.Where(o => o.Id == id).ToListAsync() on bid.AuctionId equals auction.Id
-                    join user in await DBC.Users.ToListAsync() on bid.UserId equals user.Id
-                    select new
-                    {
-                        bid.BidTime,
-                        bid.BidAmount,
-                        user.UserName,
-                        bid.AuctionId
-                    };
-
-        return query.ToExpandoObjectCollection();
+        return await DBC.Bids.ToListAsync();
     }
 
     public async Task<Bid?> GetHighestBidForAuction(int auctionId)
     {
-        if (DBC.Bids.Any() == false)
+        if (DBC.Bids.Where(o => o.AuctionId == auctionId).Any() == false)
         {
             return null;
         }
 
-        var maxBidAmount = await DBC.Bids.MaxAsync(o => o.BidAmount);
+        var maxBidAmount = await DBC.Bids.Where(o => o.AuctionId == auctionId).MaxAsync(o => o.BidAmount);
         return await DBC.Bids.FirstOrDefaultAsync(o => o.AuctionId == auctionId && o.BidAmount == maxBidAmount);
     }
 }

@@ -1,4 +1,4 @@
-@model IEnumerable<dynamic>
+@model IEnumerable<AuctionForUser>
 
 @{
     DateTime defaultEndTime = default;
@@ -30,11 +30,11 @@ else
                 <tr>
                     <td>@auction.UserName</td>
                     <td>@auction.StockName</td>
-                    <td>@auction.InitialPrice</td>
-                    <td>@auction.Status</td>
-                    <td>@auction.StartTime</td>
-                    <td>@(auction.EndTime == defaultEndTime ? " " : auction.EndTime)</td>
-                    <td><button onclick="redirectToAction('/Auction/Auction?id=@auction.Id')" type="button"
+                    <td>@auction.AuctionInitialPrice</td>
+                    <td>@auction.AuctionStatus</td>
+                    <td>@auction.AuctionStartTime</td>
+                    <td>@(auction.AuctionEndTime == defaultEndTime ? " " : auction.AuctionEndTime)</td>
+                    <td><button onclick="redirectToAction('/Auction/Auction?id=@auction.AuctionId')" type="button"
               class="btn btn-danger">Enter</button></td>
                 </tr>
             }

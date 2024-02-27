@@ -1,4 +1,4 @@
-@model IEnumerable<dynamic>
+@model IEnumerable<UserStockForUser>
 
 <h1>All my Stocks</h1>
 
@@ -23,13 +23,12 @@ else
       @foreach (var userStock in Model)
       {
         <tr>
-          <td><img style="height: 2em; width:2em" src="@Url.Content($"~/StockImages/{userStock.ImageUrl}")"
-              alt="@userStock.Name"></td>
-          <td>@userStock.Name</td>
-          <td>@userStock.TotalPrice</td>
+          <td><img style="height: 3em; width: 3em" src="@userStock.StockIconUrl" alt="@userStock.StockName"></td>
+          <td>@userStock.StockName</td>
+          <td>@userStock.UserStockTotalPrice</td>
           <td>@userStock.StockCount</td>
-          <td><button onclick="redirectToAction('/UserStock/Sell?stockName=@userStock.Name&stockId=@userStock.Id')" type="button" class="btn btn-danger">Sell</button></td>
-          <td><button onclick="redirectToAction('/Auction/Sell?stockId=@userStock.StockId&userStockId=@userStock.Id')" type="button" class="btn btn-danger">Sell on Auction</button></td>
+          <td><button onclick="redirectToAction('/UserStock/Sell?stockName=@userStock.StockName&stockUuid=@userStock.StockUuid')" type="button" class="btn btn-danger">Sell</button></td>
+          <td><button onclick="redirectToAction('/Auction/Sell?stockUuid=@userStock.StockUuid&userStockId=@userStock.UserStockId')" type="button" class="btn btn-danger">Sell on Auction</button></td>
         </tr>
       }
     </tbody>

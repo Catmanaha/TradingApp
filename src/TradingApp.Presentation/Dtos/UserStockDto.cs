@@ -6,11 +6,11 @@ public class UserStockDto
 {
     public int UserId { get; set; }
 
-    public int StockId { get; set; }
+    public string StockUuid { get; set; }
 
     [Required(ErrorMessage = "StockCount cannot be empty")]
-    [Range(1, int.MaxValue, ErrorMessage = "Count cannot be negative")]
-    public int StockCount { get; set; }
+    [Range(0, double.MaxValue, ErrorMessage = "Count cannot be negative")]
+    public double StockCount { get; set; }
 
     public double StockPrice { get; set; }
     public string StockName { get; set; }

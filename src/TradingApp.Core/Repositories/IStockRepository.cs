@@ -3,7 +3,9 @@ using TradingApp.Core.Repositories.Base;
 
 namespace TradingApp.Core.Repositories;
 
-public interface IStockRepository : IGetAll<Stock>, ICreate<Stock>, IUpdate<Stock>, IGetById<Stock>
+public interface IStockRepository : IGetById<Stock, string>, IGetAll<Stock>
 {
-    public IEnumerable<Stock> GetRecentStocks();
+    public Task<IEnumerable<Stock>> GetAllForViewAsync(int stocksNext);
+    public Task<IEnumerable<StockPriceHistory>> GetStockPriceHistory(string id, string timestamp = "24h");
+    public Task<IEnumerable<StockOHLC>> GetStockOHLC(string id);
 }

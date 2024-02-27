@@ -3,4 +3,8 @@ using TradingApp.Core.Repositories.Base;
 
 namespace TradingApp.Core.Repositories;
 
-public interface IAuctionRepository : ICreate<Auction>, IGetAllForUser<object>, IGetAll<object>, IGetById<Auction>, IUpdate<Auction> { }
+public interface IAuctionRepository : ICreate<Auction>, 
+                                      IGetAll<Auction>,
+                                      IGetById<Auction, int>,
+                                      IUpdate<Auction>,
+                                      IGetAllById<Auction> { }

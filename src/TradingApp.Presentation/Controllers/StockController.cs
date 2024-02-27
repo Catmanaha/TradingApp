@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using TradingApp.Core.Models;
 using TradingApp.Core.Repositories;
 using TradingApp.Presentation.Dtos;
+using TradingApp.Presentation.ViewModels;
 
 namespace TradingApp.Presentation.Controllers;
 
@@ -15,47 +16,36 @@ public class StockController : Controller
         this.repository = repository;
     }
 
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll(int offset = 0)
     {
-        var getAll = await repository.GetAllAsync();
-        
-        return View(getAll);
-    }
+        var stocks = await repository.GetAllForViewAsync(offset);
 
-    [Authorize(Policy = "Admins")]
-    public IActionResult Create()
-    {
-        return View();
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> Create(StockDto stock)
-    {
-        if (ModelState.IsValid == false)
+        return View(new StocksGetAllViewModel
         {
-            return View();
-        }
-
-
-        var newStock = await repository.CreateAsync(new Stock
-        {
-            MarketCap = stock.MarketCap,
-            Symbol = stock.Symbol,
-            Price = stock.Price,
-            Name = stock.Name,
+            Stocks = stocks,
+            Offset = offset
         });
+    }
 
-        var fileExtension = new FileInfo(stock.StockImage.FileName).Extension;
-        var fileName = $"{newStock.Id}{fileExtension}";
-        var destination = $"wwwroot/StockImages/{fileName}";
+    public async Task<IActionResult> Get(string id)
+    {
+        var stock = await repository.GetByIdAsync(id);
 
-        newStock.ImageUrl = fileName;
-        await repository.UpdateAsync(newStock);
+        return View(stock);
+    }
 
-        using var fileStream = System.IO.File.Create(destination);
-        await stock.StockImage.CopyToAsync(fileStream);
+    public async Task<IActionResult> GetPriceHistory(string id)
+    {
+        var stockPriceHistory = await repository.GetStockPriceHistory(id);
 
-        return RedirectToAction("GetAll");
+        return View(stockPriceHistory);
+    }
+
+    public async Task<IActionResult> GetOHCL(string id)
+    {
+        var stockOHLC= await repository.GetStockOHLC(id);
+
+        return View(stockOHLC);
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
