@@ -7,6 +7,7 @@ using TradingApp.Core.Enums;
 using TradingApp.Presentation.Dtos;
 using TradingApp.Presentation.ViewModels;
 using TradingApp.Core.Services;
+using TradingApp.Infrastructure.Services;
 
 namespace TradingApp.Presentation.Controllers;
 
@@ -19,6 +20,7 @@ public class AuctionController : Controller
     private readonly IStockRepository stockRepository;
     private readonly IAuctionService auctionService;
     private readonly IBidService bidService;
+    private readonly IUserStockService userStockService;
 
     public AuctionController(IAuctionRepository repository,
         UserManager<User> userManager,
@@ -26,7 +28,8 @@ public class AuctionController : Controller
         IBidRepository bidRepository,
         IStockRepository stockRepository,
         IAuctionService auctionService,
-        IBidService bidService)
+        IBidService bidService,
+        IUserStockService userStockService)
     {
         this.repository = repository;
         this.userManager = userManager;
@@ -35,6 +38,7 @@ public class AuctionController : Controller
         this.stockRepository = stockRepository;
         this.auctionService = auctionService;
         this.bidService = bidService;
+        this.userStockService = userStockService;
     }
 
     [Authorize]
@@ -89,6 +93,21 @@ public class AuctionController : Controller
             if (highestBid is null)
             {
                 await repository.UpdateAsync(auction);
+
+                var userAuctionn = await userManager.FindByIdAsync(auction.UserId.ToString());
+                var stockk = await stockRepository.GetByIdAsync(auction.StockUuid);
+
+                await userStockService.CreateAsync(new UserStock
+                {
+                    StockCount = auction.InitialPrice / stockk.Price,
+                    StockUuid = stockk.Uuid,
+                    TotalPrice = auction.InitialPrice * (auction.InitialPrice / stockk.Price),
+                    UserId = userAuctionn.Id
+                });
+
+                auction.EndTime = DateTime.Now;
+                await repository.UpdateAsync(auction);
+
                 return RedirectToAction("Auction", new { id });
             }
 
@@ -99,7 +118,7 @@ public class AuctionController : Controller
             var userStock = new UserStock
             {
                 StockCount = auction.InitialPrice / stock.Price,
-                StockUuid = "s",
+                StockUuid = stock.Uuid,
                 TotalPrice = highestBid.BidAmount,
                 UserId = userBidded.Id
             };
@@ -113,11 +132,12 @@ public class AuctionController : Controller
             userAuction.Balance += highestBid.BidAmount;
             userAuction.StocksBalance -= auction.InitialPrice;
             await userManager.UpdateAsync(userAuction);
+
+            auction.EndTime = DateTime.Now;
         }
 
-        auction.EndTime = DateTime.Now;
         await repository.UpdateAsync(auction);
-
+        
         return RedirectToAction("Auction", new { id });
     }
 
@@ -151,7 +171,7 @@ public class AuctionController : Controller
     public async Task<IActionResult> GetAllForUser()
     {
         var result = await auctionService.GetAllForUser(int.Parse(userManager.GetUserId(User)));
-        
+
         return View(result);
     }
 

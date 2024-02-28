@@ -11,15 +11,15 @@ public class StockOHLC
     public long EndingAtTimeSpan { get; set; }
 
     [JsonIgnore]
-    public DateTime EndingAtDateTime
+    public string? EndingAtDateTime
     {
-        get => DateTimeOffset.FromUnixTimeSeconds(EndingAtTimeSpan).DateTime;
+        get => DateTimeOffset.FromUnixTimeSeconds(EndingAtTimeSpan).DateTime.ToString("MMM dd, hh:mm tt, yyyy");
     }
 
     [JsonIgnore]
-    public DateTime StartingAtDateTime
+    public string? StartingAtDateTime
     {
-        get => DateTimeOffset.FromUnixTimeSeconds(StartingAtTimeSpan).DateTime;
+        get => DateTimeOffset.FromUnixTimeSeconds(StartingAtTimeSpan).DateTime.ToString("MMM dd, hh:mm tt, yyyy");
     }
 
     [JsonProperty("open")]

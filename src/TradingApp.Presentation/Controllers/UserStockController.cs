@@ -97,11 +97,11 @@ public class UserStockController : Controller
     }
 
     [Authorize]
-    public IActionResult Sell(string stockName, int stockUuid)
+    public IActionResult Sell(string stockName, int userStockId)
     {
         return View(new SellUserStockViewModel
         {
-            StockUuid = stockUuid,
+            UserStockId = userStockId,
             StockName = stockName
         });
     }
@@ -114,12 +114,12 @@ public class UserStockController : Controller
         {
             return View(new SellUserStockViewModel
             {
-                StockUuid = dto.StockUuid,
+                UserStockId = dto.UserStockId,
                 StockName = dto.StockName
             });
         }
 
-        var userStock = await repository.GetByIdAsync(dto.StockUuid);
+        var userStock = await repository.GetByIdAsync(dto.UserStockId);
 
         var totalCount = userStock.StockCount - dto.StockCount;
 
@@ -128,7 +128,7 @@ public class UserStockController : Controller
             ModelState.AddModelError("Count", "You do not own that much stocks");
             return View(new SellUserStockViewModel
             {
-                StockUuid = dto.StockUuid,
+                UserStockId = dto.UserStockId,
                 StockName = dto.StockName
             });
         }

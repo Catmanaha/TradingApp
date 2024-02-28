@@ -27,7 +27,7 @@ else
           <td>@userStock.StockName</td>
           <td>@userStock.UserStockTotalPrice</td>
           <td>@userStock.StockCount</td>
-          <td><button onclick="redirectToAction('/UserStock/Sell?stockName=@userStock.StockName&stockUuid=@userStock.StockUuid')" type="button" class="btn btn-danger">Sell</button></td>
+          <td><button onclick="redirectToAction('/UserStock/Sell?stockName=@userStock.StockName&userStockId=@userStock.UserStockId')" type="button" class="btn btn-danger">Sell</button></td>
           <td><button onclick="redirectToAction('/Auction/Sell?stockUuid=@userStock.StockUuid&userStockId=@userStock.UserStockId')" type="button" class="btn btn-danger">Sell on Auction</button></td>
         </tr>
       }

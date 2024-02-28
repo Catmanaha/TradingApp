@@ -10,4 +10,5 @@ public interface IUserStockRepository : ICreate<UserStock>,
                                         IGetAllById<UserStock>
 {
     public Task Sell(UserStock userStock, double count);
+    public Task<IEnumerable<UserStock>> GetAllForUserAsync(int id);
 };

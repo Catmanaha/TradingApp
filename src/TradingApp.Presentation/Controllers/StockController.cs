@@ -1,3 +1,5 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TradingApp.Core.Models;
@@ -18,7 +20,7 @@ public class StockController : Controller
 
     public async Task<IActionResult> GetAll(int offset = 0)
     {
-        var stocks = await repository.GetAllForViewAsync(offset);
+        var stocks = await repository.GetAllWithOffsetAsync(offset);
 
         return View(new StocksGetAllViewModel
         {
@@ -37,15 +39,17 @@ public class StockController : Controller
     public async Task<IActionResult> GetPriceHistory(string id)
     {
         var stockPriceHistory = await repository.GetStockPriceHistory(id);
+        var json = JsonSerializer.Serialize(stockPriceHistory);
 
-        return View(stockPriceHistory);
+        return Content(json, "application/json");
     }
 
     public async Task<IActionResult> GetOHCL(string id)
     {
-        var stockOHLC= await repository.GetStockOHLC(id);
+        var stockPriceHistory = await repository.GetStockOHLC(id);
+        var json = JsonSerializer.Serialize(stockPriceHistory);
 
-        return View(stockOHLC);
+        return Content(json, "application/json");
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

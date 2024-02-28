@@ -4,11 +4,11 @@
     int stockCount = default;
 }
 
-<h1>Buy stock @Model.StockName</h1>
+<h1>Sell stock @Model.StockName</h1>
 
 <form asp-action="Sell" method="post">
     <div class="text-danger" asp-validation-summary="All"></div>
-    <input hidden asp-for="@Model.StockUuid" type="text" class="form-control">
+    <input hidden asp-for="@Model.UserStockId" type="text" class="form-control">
     <input hidden asp-for="@Model.StockName" type="text" class="form-control">
     <div class="form-group">
         <label asp-for="@stockCount">Count</label>

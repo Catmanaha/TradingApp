@@ -31,6 +31,11 @@ public class AuctionSqlRepository : IAuctionRepository
         return await DBC.Auctions.Where(o => o.Id == id).ToListAsync();
     }
 
+    public async Task<IEnumerable<Auction>> GetAllForUserAsync(int id)
+    {
+        return await DBC.Auctions.Where(o => o.UserId == id).ToListAsync();
+    }
+
     public async Task<Auction?> GetByIdAsync(int id)
     {
         return await DBC.Auctions.FirstOrDefaultAsync(o => o.Id == id);

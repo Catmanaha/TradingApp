@@ -10,9 +10,8 @@ namespace TradingApp.Core.Models
         [JsonProperty("timestamp")]
         public long TimeStamp { get; set; }
 
-        [JsonIgnore]
-        public DateTime DateTime{
-            get => DateTimeOffset.FromUnixTimeSeconds(TimeStamp).DateTime;
+        public string? DateTime{
+            get => DateTimeOffset.FromUnixTimeSeconds(TimeStamp).DateTime.ToString("MMM dd, hh:mm tt, yyyy");
         }
     }
 }
