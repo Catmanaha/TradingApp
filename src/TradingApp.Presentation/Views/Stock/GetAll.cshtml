@@ -1,0 +1,30 @@
+@model IEnumerable<Stock>
+
+<h1>All Stocks</h1>
+
+@if (Model.Any() == false)
+{
+  <span>No stocks found</span>
+}
+else
+{
+  <table class="table table-hover table-dark">
+    <thead>
+      <tr>
+        <th scope="col">Symbol</th>
+        <th scope="col">Name</th>
+        <th scope="col">Market Capacity</th>
+      </tr>
+    </thead>
+    <tbody>
+      @foreach (var stock in Model)
+      {
+        <tr>
+          <td>@stock.Symbol</td>
+          <td>@stock.Name</td>
+          <td>@stock.MarketCap</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}
