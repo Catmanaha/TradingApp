@@ -7,10 +7,10 @@ using TradingApp.Core.Enums;
 using TradingApp.Presentation.Dtos;
 using TradingApp.Presentation.ViewModels;
 using TradingApp.Core.Services;
-using TradingApp.Infrastructure.Services;
 
 namespace TradingApp.Presentation.Controllers;
 
+[Authorize]
 public class AuctionController : Controller
 {
     private readonly IAuctionRepository repository;
@@ -41,7 +41,6 @@ public class AuctionController : Controller
         this.userStockService = userStockService;
     }
 
-    [Authorize]
     public async Task<IActionResult> Bid(int auctionId)
     {
         return View(auctionId);
@@ -79,68 +78,14 @@ public class AuctionController : Controller
         return RedirectToAction("Auction", new { id = dto.AuctionId });
     }
 
-    [Authorize]
     public async Task<IActionResult> ChangeStatus(AuctionStatusEnum status, int id)
     {
-        var auction = await repository.GetByIdAsync(id);
-        auction.Status = status;
+        await auctionService.ChangeStatus(status, id);
 
-
-        if (status == AuctionStatusEnum.Closed)
-        {
-            var highestBid = await bidRepository.GetHighestBidForAuction(id);
-
-            if (highestBid is null)
-            {
-                await repository.UpdateAsync(auction);
-
-                var userAuctionn = await userManager.FindByIdAsync(auction.UserId.ToString());
-                var stockk = await stockRepository.GetByIdAsync(auction.StockUuid);
-
-                await userStockService.CreateAsync(new UserStock
-                {
-                    StockCount = auction.InitialPrice / stockk.Price,
-                    StockUuid = stockk.Uuid,
-                    TotalPrice = auction.InitialPrice * (auction.InitialPrice / stockk.Price),
-                    UserId = userAuctionn.Id
-                });
-
-                auction.EndTime = DateTime.Now;
-                await repository.UpdateAsync(auction);
-
-                return RedirectToAction("Auction", new { id });
-            }
-
-            var userBidded = await userManager.FindByIdAsync(highestBid.UserId.ToString());
-            var userAuction = await userManager.FindByIdAsync(auction.UserId.ToString());
-            var stock = await stockRepository.GetByIdAsync(auction.StockUuid);
-
-            var userStock = new UserStock
-            {
-                StockCount = auction.InitialPrice / stock.Price,
-                StockUuid = stock.Uuid,
-                TotalPrice = highestBid.BidAmount,
-                UserId = userBidded.Id
-            };
-
-            await userStockRepository.CreateAsync(userStock);
-
-            userBidded.StocksBalance += highestBid.BidAmount;
-            userBidded.Balance -= highestBid.BidAmount;
-            await userManager.UpdateAsync(userBidded);
-
-            userAuction.Balance += highestBid.BidAmount;
-            userAuction.StocksBalance -= auction.InitialPrice;
-            await userManager.UpdateAsync(userAuction);
-
-            auction.EndTime = DateTime.Now;
-        }
-
-        await repository.UpdateAsync(auction);
-        
         return RedirectToAction("Auction", new { id });
     }
 
+    [AllowAnonymous]
     public async Task<IActionResult> GetAll()
     {
         var auctions = await auctionService.GetAllForView();
@@ -148,7 +93,6 @@ public class AuctionController : Controller
         return View(auctions);
     }
 
-    [Authorize]
     public async Task<IActionResult> Auction(int id)
     {
         var auction = await repository.GetByIdAsync(id);
@@ -167,7 +111,6 @@ public class AuctionController : Controller
         });
     }
 
-    [Authorize]
     public async Task<IActionResult> GetAllForUser()
     {
         var result = await auctionService.GetAllForUser(int.Parse(userManager.GetUserId(User)));
@@ -175,7 +118,6 @@ public class AuctionController : Controller
         return View(result);
     }
 
-    [Authorize]
     public async Task<IActionResult> Sell(string stockUuid, int userStockId)
     {
         var userId = int.Parse(userManager.GetUserId(User));
@@ -242,6 +184,7 @@ public class AuctionController : Controller
         return RedirectToAction("GetAllForUser");
     }
 
+    [AllowAnonymous]
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {

@@ -1,21 +1,14 @@
 using System.Reflection;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using TradingApp.Core.Enums;
-using TradingApp.Core.Models;
 using TradingApp.Core.Models.Managers;
-using TradingApp.Core.Repositories;
-using TradingApp.Core.Services;
 using TradingApp.Infrastructure.Data;
-using TradingApp.Infrastructure.Repositories;
-using TradingApp.Infrastructure.Services;
+using TradingApp.Infrastructure.Extensions.DependencyInjection;
 using TradingApp.Presentation.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
-
 
 builder.Services.AddAuthorization(options =>
 {
@@ -25,45 +18,14 @@ builder.Services.AddAuthorization(options =>
     });
 });
 
-builder.Services.AddDbContext<TradingAppDbContext>(options =>
-{
-    string connectionStringKey = "TradingAppDb";
-    string? connectionString = builder.Configuration.GetConnectionString("DefaultConnectionString");
-
-    if (string.IsNullOrEmpty(connectionString))
-    {
-        throw new NullReferenceException($"No connection string found in appsettings.json with a key '{connectionStringKey}'");
-    }
-
-    options.UseSqlServer(connectionString, o =>
-    {
-        o.MigrationsAssembly(Assembly.GetExecutingAssembly().GetName().Name);
-    });
-});
-
-builder.Services.AddIdentity<User, IdentityRole<int>>(o =>
-{
-    o.Password.RequiredLength = 8;
-}
-).AddEntityFrameworkStores<TradingAppDbContext>();
-
-builder.Services.ConfigureApplicationCookie(o => {
-    o.AccessDeniedPath = "/User/AccessDenied";
-    o.LoginPath = "/User/Login";
-});
-
 builder.Services.Configure<LogManager>(builder.Configuration.GetSection("LoggerManager"));
 
 builder.Services.AddScoped<HttpClient>();
 builder.Services.AddScoped<TradingAppDbContext>();
-builder.Services.AddScoped<IBidService, BidService>();
-builder.Services.AddScoped<IAuctionService, AuctionService>();
-builder.Services.AddScoped<IUserStockService, UserStockService>();
-builder.Services.AddScoped<IBidRepository, BidSqlRepository>();
-builder.Services.AddScoped<IAuctionRepository, AuctionSqlRepository>();
-builder.Services.AddScoped<IStockRepository, StockSqlRepository>();
-builder.Services.AddScoped<IUserStockRepository, UserStockSqlRepository>();
-builder.Services.AddScoped<ILogRepository, LogSqlRepository>();
+
+builder.Services.InitDbContext(builder.Configuration, Assembly.GetExecutingAssembly());
+builder.Services.InjectServices();
+builder.Services.InjectRepositories();
 
 builder.Services.AddTransient<LogMiddleware>();
 
@@ -84,6 +46,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseMiddleware<LogMiddleware>();
+
 
 app.MapControllerRoute(
     name: "default",

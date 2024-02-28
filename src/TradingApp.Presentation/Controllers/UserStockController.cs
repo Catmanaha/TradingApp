@@ -9,6 +9,7 @@ using TradingApp.Presentation.ViewModels;
 
 namespace TradingApp.Presentation.Controllers;
 
+[Authorize]
 public class UserStockController : Controller
 {
     private readonly IUserStockRepository repository;
@@ -26,7 +27,6 @@ public class UserStockController : Controller
         this.userStockService = userStockService;
     }
 
-    [Authorize]
     public IActionResult Create(string stockName, string stockUuid, double price)
     {
         return View(new UserStockViewModel
@@ -83,7 +83,6 @@ public class UserStockController : Controller
         return RedirectToAction("GetAllForUser");
     }
 
-    [Authorize]
     public async Task<IActionResult> GetAllForUser()
     {
         if (userManager.GetUserId(User) is null)
@@ -96,7 +95,6 @@ public class UserStockController : Controller
         return View(stocks);
     }
 
-    [Authorize]
     public IActionResult Sell(string stockName, int userStockId)
     {
         return View(new SellUserStockViewModel
@@ -133,18 +131,12 @@ public class UserStockController : Controller
             });
         }
 
-        var countBefore = userStock.StockCount;
-
-        await repository.Sell(userStock, dto.StockCount);
-        var user = await userManager.GetUserAsync(User);
-
-        user.Balance += (userStock.TotalPrice / countBefore) * dto.StockCount;
-        user.StocksBalance -= (userStock.TotalPrice / countBefore) * dto.StockCount;
-        await userManager.UpdateAsync(user);
-
+        await userStockService.Sell(userStock, dto.StockCount);
+        
         return RedirectToAction("Profile", "User");
     }
 
+    [AllowAnonymous]
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {

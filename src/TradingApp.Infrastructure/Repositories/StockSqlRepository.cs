@@ -1,20 +1,18 @@
-using Microsoft.EntityFrameworkCore.Migrations.Operations;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using TradingApp.Core.Models;
+using TradingApp.Core.Models.Stocks;
 using TradingApp.Core.Repositories;
 
 namespace TradingApp.Infrastructure.Repositories;
 
 public class StockSqlRepository : IStockRepository
 {
-    private string apiUrl = "https://coinranking1.p.rapidapi.com/";
+    private string apiUrlBase = "https://coinranking1.p.rapidapi.com/";
     private readonly HttpClient client;
 
     public StockSqlRepository(HttpClient client)
     {
         this.client = client;
-        client.BaseAddress = new Uri(apiUrl);
+        client.BaseAddress = new Uri(apiUrlBase);
         client.DefaultRequestHeaders.Add("X-RapidAPI-Host", "coinranking1.p.rapidapi.com");
         client.DefaultRequestHeaders.Add("X-RapidAPI-Key", "323a9b5888mshce7c554fb2fab1fp11f674jsnf6a933f94130");
     }
@@ -22,53 +20,36 @@ public class StockSqlRepository : IStockRepository
     public async Task<IEnumerable<Stock>> GetAllWithOffsetAsync(int offset)
     {
         var limit = 20;
-        var stocks = await client.GetAsync(StockApiRequests.GetAll(limit, limit * offset));
-        var json = await stocks.Content.ReadAsStringAsync();
-        var parsed = JObject.Parse(json);
-        var results = parsed["data"]["coins"];
-        var stocksDeserialized = results.ToObject<IEnumerable<Stock>>();
-
-        return stocksDeserialized;
+        return await Deserialize<IEnumerable<Stock>>(StockApiRequests.GetAll(limit, limit * offset), "coins");
     }
 
     public async Task<Stock?> GetByIdAsync(string id)
     {
-        var stock = await client.GetAsync(StockApiRequests.GetById(id));
-        var json = await stock.Content.ReadAsStringAsync();
-        var parsed = JObject.Parse(json);
-        var result = parsed["data"]["coin"];
-
-        return result.ToObject<Stock>();
+        return await Deserialize<Stock?>(StockApiRequests.GetById(id), "coin");
     }
 
     public async Task<IEnumerable<StockPriceHistory>> GetStockPriceHistory(string id, string timestamp = "24h")
     {
-        var stock = await client.GetAsync(StockApiRequests.StockPriceHistory(id, timestamp));
-        var json = await stock.Content.ReadAsStringAsync();
-        var parsed = JObject.Parse(json);
-        var result = parsed["data"]["history"];
-
-        return result.ToObject<IEnumerable<StockPriceHistory>>();
+        return await Deserialize<IEnumerable<StockPriceHistory>>(StockApiRequests.StockPriceHistory(id, timestamp), "history");
     }
 
     public async Task<IEnumerable<StockOHLC>> GetStockOHLC(string id)
     {
-        var stock = await client.GetAsync(StockApiRequests.GetStockOHLC(id));
-        var json = await stock.Content.ReadAsStringAsync();
-        var parsed = JObject.Parse(json);
-        var result = parsed["data"]["ohlc"];
-
-        return result.ToObject<IEnumerable<StockOHLC>>();
+        return await Deserialize<IEnumerable<StockOHLC>>(StockApiRequests.GetStockOHLC(id), "ohlc");
     }
 
     public async Task<IEnumerable<Stock>> GetAllAsync()
     {
-        var stocks = await client.GetAsync(StockApiRequests.GetAll());
-        var json = await stocks.Content.ReadAsStringAsync();
-        var parsed = JObject.Parse(json);
-        var results = parsed["data"]["coins"];
-        var stocksDeserialized = results.ToObject<IEnumerable<Stock>>();
+        return await Deserialize<IEnumerable<Stock>>(StockApiRequests.GetAll(), "coins");
+    }
 
-        return stocksDeserialized;
+    private async Task<T> Deserialize<T>(string url, string value)
+    {
+        var result = await client.GetAsync(url);
+        var json = await result.Content.ReadAsStringAsync();
+        var parsed = JObject.Parse(json);
+        var element = parsed["data"][value];
+
+        return element.ToObject<T>();
     }
 }

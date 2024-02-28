@@ -1,10 +1,6 @@
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TradingApp.Core.Models;
 using TradingApp.Core.Repositories;
-using TradingApp.Presentation.Dtos;
 using TradingApp.Presentation.ViewModels;
 
 namespace TradingApp.Presentation.Controllers;

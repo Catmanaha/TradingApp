@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace TradingApp.Core.Models;
+namespace TradingApp.Core.Models.Stocks;
 
 public class Stock
 {

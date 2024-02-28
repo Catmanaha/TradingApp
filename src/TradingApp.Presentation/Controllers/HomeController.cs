@@ -6,11 +6,8 @@ namespace TradingApp.Presentation.Controllers;
 
 public class HomeController : Controller
 {
-    private readonly IStockRepository repository;
-
-    public HomeController(IStockRepository repository)
+    public HomeController()
     {
-        this.repository = repository;
     }
 
     public IActionResult Index()

@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using TradingApp.Core.Models;
 using TradingApp.Core.Models.ReturnsForServices;
 using TradingApp.Core.Repositories;
@@ -22,6 +21,20 @@ namespace TradingApp.Infrastructure.Services
             this.stockRepository = stockRepository;
             this.userStockRepository = userStockRepository;
             this.userManager = userManager;
+        }
+
+
+        public async Task Sell(UserStock userStock, double stockCount)
+        {
+
+            var countBefore = userStock.StockCount;
+
+            await userStockRepository.Sell(userStock, stockCount);
+            var user = await userManager.FindByIdAsync(userStock.UserId.ToString());
+
+            user.Balance += (userStock.TotalPrice / countBefore) * stockCount;
+            user.StocksBalance -= (userStock.TotalPrice / countBefore) * stockCount;
+            await userManager.UpdateAsync(user);
         }
 
         public async Task<UserStock> CreateAsync(UserStock model)

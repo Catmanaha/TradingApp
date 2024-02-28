@@ -14,11 +14,10 @@
     to @Model.Name Price History</button>
   <button onclick="showCanvas2()" type="button" class="btn btn-primary">Go to
     @Model.Name Price OHCL</button>
-  <button type="button" class="btn btn-primary">Buy</button>
+  <button onclick="redirectToAction('/UserStock/Create?stockName=@Model.Name&stockUuid=@Model.Uuid&price=@Model.Price')" type="button" class="btn btn-primary">Buy</button>
 </div>
 <canvas id="stockChart" width="800" height="400"></canvas>
-<canvas id="stockOHCLChart" width="800" height="400">
-
+<canvas id="stockOHCLChart" width="800" height="400"></canvas>
 
 <script>
 
