@@ -32,6 +32,11 @@ public class UserStockSqlRepository : IUserStockRepository
         return await DBC.UserStocks.Where(o => o.Id == id).ToListAsync();
     }
 
+    public async Task<IEnumerable<UserStock>> GetAllForUserAsync(int id)
+    {
+        return await DBC.UserStocks.Where(o => o.UserId == id).ToListAsync();
+    }
+
     public async Task<UserStock?> GetByIdAsync(int id)
     {
         return await DBC.UserStocks.FirstOrDefaultAsync(o => o.Id == id);
@@ -39,9 +44,7 @@ public class UserStockSqlRepository : IUserStockRepository
 
     public async Task Sell(UserStock userStock, double count)
     {
-        var result = await DBC.UserStocks.FirstOrDefaultAsync(o => o.Id == userStock.Id);
-
-        var totalCount = result.StockCount - count;
+        var totalCount = userStock.StockCount - count;
 
         if (totalCount == 0)
         {
@@ -50,9 +53,10 @@ public class UserStockSqlRepository : IUserStockRepository
             return;
         }
 
-        result.StockCount -= count;
+        userStock.TotalPrice = (userStock.TotalPrice / userStock.StockCount) * (userStock.StockCount - count);
+        userStock.StockCount -= count;
 
-        DBC.UserStocks.Update(result);
+        DBC.UserStocks.Update(userStock);
         await DBC.SaveChangesAsync();
     }
 

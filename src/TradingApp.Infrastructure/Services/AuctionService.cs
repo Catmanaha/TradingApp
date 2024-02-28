@@ -26,10 +26,15 @@ public class AuctionService : IAuctionService
 
     public async Task<IEnumerable<AuctionForUser>> GetAllForUser(int id)
     {
-        var query = from auction in await auctionRepository.GetAllAsync()
-                    join stock in await stockRepository.GetAllAsync() on auction.StockUuid equals stock.Uuid
-                    join user in await userManager.Users.Where(o => o.Id == id).ToListAsync() on auction.UserId equals user.Id
-                    select new AuctionForUser
+        var auctions = await auctionRepository.GetAllForUserAsync(id);
+        var user = await userManager.Users.FirstOrDefaultAsync(o => o.Id == id);
+        var auctionForUsers = new List<AuctionForUser>();
+
+        foreach (var auction in auctions)
+        {
+            var stock = await stockRepository.GetByIdAsync(auction.StockUuid);
+
+            auctionForUsers.Add(new AuctionForUser
                     {
                         StockName = stock.Name,
                         AuctionInitialPrice = auction.InitialPrice,
@@ -38,9 +43,10 @@ public class AuctionService : IAuctionService
                         AuctionStartTime = auction.StartTime,
                         AuctionEndTime = auction.EndTime,
                         AuctionId = auction.Id
-                    };
+                    });
+        }
 
-        return query;
+        return auctionForUsers;
     }
 
     public async Task<IEnumerable<AuctionForUser>> GetAllForView()

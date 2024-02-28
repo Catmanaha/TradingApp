@@ -46,21 +46,24 @@ namespace TradingApp.Infrastructure.Services
 
         public async Task<IEnumerable<UserStockForUser>> GetAllForUser(int id)
         {
-            var query = from userStock in await userStockRepository.GetAllAsync()
-                        join stock in await stockRepository.GetAllAsync() on userStock.StockUuid equals stock.Uuid
-                        join user in await userManager.Users.Where(o => o.Id == id).ToListAsync() on userStock.UserId equals user.Id
-                        select new UserStockForUser
-                        {
-                            StockUuid = stock.Uuid,
-                            UserStockId = userStock.Id,
-                            StockIconUrl = stock.IconUrl,
-                            StockName = stock.Name,
-                            UserStockTotalPrice = userStock.TotalPrice,
-                            StockCount = userStock.StockCount
+            var userStocks = await userStockRepository.GetAllForUserAsync(id);
+            var userStockForUsers = new List<UserStockForUser>();
 
-                        };
+            foreach (var userStock in userStocks)
+            {
+                var stock = await stockRepository.GetByIdAsync(userStock.StockUuid);
+                userStockForUsers.Add(new UserStockForUser
+                {
+                    StockUuid = stock.Uuid,
+                    UserStockId = userStock.Id,
+                    StockIconUrl = stock.IconUrl,
+                    StockName = stock.Name,
+                    UserStockTotalPrice = userStock.TotalPrice,
+                    StockCount = userStock.StockCount
+                });
+            }
 
-            return query;
+            return userStockForUsers;
         }
     }
 }

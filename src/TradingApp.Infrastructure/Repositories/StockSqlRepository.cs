@@ -19,7 +19,7 @@ public class StockSqlRepository : IStockRepository
         client.DefaultRequestHeaders.Add("X-RapidAPI-Key", "323a9b5888mshce7c554fb2fab1fp11f674jsnf6a933f94130");
     }
 
-    public async Task<IEnumerable<Stock>> GetAllForViewAsync(int offset)
+    public async Task<IEnumerable<Stock>> GetAllWithOffsetAsync(int offset)
     {
         var limit = 20;
         var stocks = await client.GetAsync(StockApiRequests.GetAll(limit, limit * offset));

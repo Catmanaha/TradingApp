@@ -1,5 +1,7 @@
 @model StocksGetAllViewModel
 
+
+
 <h1>All Stocks</h1>
 
 @if (Model.Stocks.Any() == false)
@@ -8,7 +10,7 @@
 }
 else
 {
-  <table id="stock_table" class="table table-hover table-dark">
+  <table id="stock_table" class="table table-hover table-dark table-striped">
     <thead>
       <tr>
         <th scope="col"></th>
@@ -32,7 +34,8 @@ else
           <td>@stock.Change</td>
           <td>@stock._24hVolume</td>
           <td>@stock.MarketCap</td>
-          <td><button onclick="redirectToAction('/Stock/Get?id=@stock.Uuid')" type="button" class="btn btn-primary">Enter</button></td>
+          <td><button onclick="redirectToAction('/Stock/Get?id=@stock.Uuid')" type="button"
+              class="btn btn-primary">Enter</button></td>
         </tr>
       }
     </tbody>
@@ -60,7 +63,6 @@ else
     $(document).ready(function () {
       $("#stock_table").DataTable({
         info: false,
-        ordering: false,
         paging: false,
       });
     });
