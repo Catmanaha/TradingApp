@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace TradingApp.Core.Models;
+namespace TradingApp.Core.Models.Stocks;
 
 public class StockOHLC
 {
@@ -10,13 +10,11 @@ public class StockOHLC
     [JsonProperty("endingAt")]
     public long EndingAtTimeSpan { get; set; }
 
-    [JsonIgnore]
     public string? EndingAtDateTime
     {
         get => DateTimeOffset.FromUnixTimeSeconds(EndingAtTimeSpan).DateTime.ToString("MMM dd, hh:mm tt, yyyy");
     }
 
-    [JsonIgnore]
     public string? StartingAtDateTime
     {
         get => DateTimeOffset.FromUnixTimeSeconds(StartingAtTimeSpan).DateTime.ToString("MMM dd, hh:mm tt, yyyy");

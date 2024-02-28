@@ -24,6 +24,7 @@ public class BidService : IBidService
         this.userManager = userManager;
     }
 
+
     public async Task<IEnumerable<BidForAuction>> GetAllForAuction(int id)
     {
         var query = from bid in await bidRepository.GetAllAsync()

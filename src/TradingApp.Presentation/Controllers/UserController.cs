@@ -7,6 +7,7 @@ using TradingApp.Presentation.Dtos;
 
 namespace TradingApp.Presentation.Controllers;
 
+[Authorize]
 public class UserController : Controller
 {
     private readonly UserManager<User> userManager;
@@ -31,12 +32,14 @@ public class UserController : Controller
         return RedirectToAction("Index", "Home");
     }
 
+    [AllowAnonymous]
     public IActionResult Register()
     {
         return View();
     }
 
     [HttpPost]
+    [AllowAnonymous]
     public async Task<IActionResult> Register(UserRegisterDto userDto)
     {
         if (ModelState.IsValid == false)
@@ -78,26 +81,7 @@ public class UserController : Controller
         return RedirectToAction("Login");
     }
 
-    public async Task<IActionResult> CreateAdmin() {
-        var user = new User
-        {
-            UserName = "Admin",
-            Email = "admin@gmail.com"
-        };
-
-        var result = await userManager.CreateAsync(user, "Admin123!");
-
-        var userRole = new IdentityRole<int>
-        {
-            Name = UserRolesEnum.Admin.ToString()
-        };
-
-        await roleManager.CreateAsync(userRole);
-        await userManager.AddToRoleAsync(user, UserRolesEnum.Admin.ToString());
-
-        return Ok();
-    }
-
+    [AllowAnonymous]
     public IActionResult Login(string? ReturnUrl)
     {
         ViewData["ReturnUrl"] = ReturnUrl;
@@ -106,6 +90,7 @@ public class UserController : Controller
     }
 
     [HttpPost]
+    [AllowAnonymous]
     public async Task<IActionResult> Login(UserLoginDto userdto)
     {
         if (ModelState.IsValid == false)
@@ -133,7 +118,6 @@ public class UserController : Controller
 
     }
 
-    [Authorize]
     public IActionResult ChangePassword()
     {
         return View();
@@ -164,7 +148,6 @@ public class UserController : Controller
         return RedirectToAction("Profile");
     }
 
-    [Authorize]
     public async Task<IActionResult> Profile()
     {
         var user = await userManager.GetUserAsync(User);
@@ -172,11 +155,10 @@ public class UserController : Controller
         return View(user);
     }
 
-    [Authorize]
     public async Task<IActionResult> CashIn()
     {
         var user = await userManager.GetUserAsync(User);
-        
+
         return View(user);
     }
 
@@ -191,11 +173,13 @@ public class UserController : Controller
         return RedirectToAction("Profile");
     }
 
+    [AllowAnonymous]
     public IActionResult AccessDenied()
     {
         return View();
     }
 
+    [AllowAnonymous]
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {

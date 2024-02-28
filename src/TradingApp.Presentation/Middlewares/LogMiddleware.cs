@@ -52,7 +52,7 @@ public class LogMiddleware : IMiddleware
         context.Response.Body.Seek(0, SeekOrigin.Begin);
 
         await context.Response.Body.CopyToAsync(originalResponseBody);
-
+        
         await repository.CreateAsync(new Log
         {
             UserId = userId,

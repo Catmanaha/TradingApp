@@ -7,4 +7,5 @@ namespace TradingApp.Core.Services;
 public interface IUserStockService : ICreate<UserStock>
 {
     public Task<IEnumerable<UserStockForUser>> GetAllForUser(int id);
+    public Task Sell(UserStock userStock, double stockCount);
 }

@@ -1,4 +1,4 @@
-namespace TradingApp.Core.Models;
+namespace TradingApp.Core.Models.Stocks;
 
 public static class StockApiRequests
 {
