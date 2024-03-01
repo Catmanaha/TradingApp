@@ -2,8 +2,7 @@ using System.Reflection;
 using System.Security.Claims;
 using TradingApp.Core.Enums;
 using TradingApp.Core.Models.Managers;
-using TradingApp.Infrastructure.Data;
-using TradingApp.Infrastructure.Extensions.DependencyInjection;
+using TradingApp.Infrastructure.Extensions;
 using TradingApp.Presentation.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,16 +17,13 @@ builder.Services.AddAuthorization(options =>
     });
 });
 
-builder.Services.Configure<LogManager>(builder.Configuration.GetSection("LoggerManager"));
+builder.Services.AddTransient<LogMiddleware>();
 
-builder.Services.AddScoped<HttpClient>();
-builder.Services.AddScoped<TradingAppDbContext>();
+builder.Services.Configure<LogManager>(builder.Configuration.GetSection("LoggerManager"));
+builder.Services.Configure<ApiManager>(builder.Configuration.GetSection("ApiManager"));
 
 builder.Services.InitDbContext(builder.Configuration, Assembly.GetExecutingAssembly());
-builder.Services.InjectServices();
-builder.Services.InjectRepositories();
-
-builder.Services.AddTransient<LogMiddleware>();
+builder.Services.Inject();
 
 var app = builder.Build();
 

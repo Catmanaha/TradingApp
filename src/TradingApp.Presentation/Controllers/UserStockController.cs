@@ -2,9 +2,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using TradingApp.Core.Models;
-using TradingApp.Core.Repositories;
 using TradingApp.Core.Services;
-using TradingApp.Presentation.Dtos;
+using TradingApp.Core.Dtos;
 using TradingApp.Presentation.ViewModels;
 
 namespace TradingApp.Presentation.Controllers;
@@ -12,17 +11,14 @@ namespace TradingApp.Presentation.Controllers;
 [Authorize]
 public class UserStockController : Controller
 {
-    private readonly IUserStockRepository repository;
     private readonly UserManager<User> userManager;
     private readonly IUserStockService userStockService;
 
     public UserStockController(
-        IUserStockRepository repository,
         UserManager<User> userManager,
         IUserStockService userStockService
     )
     {
-        this.repository = repository;
         this.userManager = userManager;
         this.userStockService = userStockService;
     }
@@ -52,33 +48,9 @@ public class UserStockController : Controller
             });
         }
 
-        var totalPrice = userStockDto.StockPrice * userStockDto.StockCount;
         var user = await userManager.GetUserAsync(User);
-        var newUserBalace = user.Balance - totalPrice;
 
-        if (newUserBalace < 0)
-        {
-            ModelState.AddModelError("Balance", "You do not have enough money");
-            return View(new UserStockViewModel
-            {
-                UserId = int.Parse(userManager.GetUserId(User)),
-                Price = userStockDto.StockPrice,
-                StockName = userStockDto.StockName,
-                StockUuid = userStockDto.StockUuid
-            });
-        }
-
-        user.StocksBalance += totalPrice;
-        user.Balance = newUserBalace;
-        await userManager.UpdateAsync(user);
-
-        await userStockService.CreateAsync(new UserStock
-        {
-            UserId = userStockDto.UserId,
-            StockUuid = userStockDto.StockUuid,
-            StockCount = userStockDto.StockCount,
-            TotalPrice = totalPrice
-        });
+        await userStockService.CreateAsync(userStockDto, user);
 
         return RedirectToAction("GetAllForUser");
     }
@@ -117,22 +89,8 @@ public class UserStockController : Controller
             });
         }
 
-        var userStock = await repository.GetByIdAsync(dto.UserStockId);
+        await userStockService.Sell(dto);
 
-        var totalCount = userStock.StockCount - dto.StockCount;
-
-        if (totalCount < 0)
-        {
-            ModelState.AddModelError("Count", "You do not own that much stocks");
-            return View(new SellUserStockViewModel
-            {
-                UserStockId = dto.UserStockId,
-                StockName = dto.StockName
-            });
-        }
-
-        await userStockService.Sell(userStock, dto.StockCount);
-        
         return RedirectToAction("Profile", "User");
     }
 

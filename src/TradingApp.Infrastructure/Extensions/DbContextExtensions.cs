@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using TradingApp.Core.Models;
 using TradingApp.Infrastructure.Data;
 
-namespace TradingApp.Infrastructure.Extensions.DependencyInjection;
+namespace TradingApp.Infrastructure.Extensions;
 
 public static class DbContextExtensions
 {

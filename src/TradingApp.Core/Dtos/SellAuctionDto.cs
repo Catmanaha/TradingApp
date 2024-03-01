@@ -1,7 +1,6 @@
 using TradingApp.Core.Enums;
-using TradingApp.Core.Models;
 
-namespace TradingApp.Presentation.Dtos;
+namespace TradingApp.Core.Dtos;
 
 public class SellAuctionDto
 {
