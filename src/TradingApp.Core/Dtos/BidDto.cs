@@ -1,4 +1,4 @@
-namespace TradingApp.Presentation.Dtos;
+namespace TradingApp.Core.Dtos;
 
 public class BidDto
 {

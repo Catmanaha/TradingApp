@@ -42,7 +42,7 @@ else
     <ul class="pagination justify-content-end">
       @if (Model.Offset != 0)
       {
-        <li disabled class="page-item"><a class="page-link" href="?offset=@(Model.Offset - 1)">Previous</a></li>
+        <li class="page-item"><a class="page-link" href="?offset=@(Model.Offset - 1)">Previous</a></li>
       }
       <li class="page-item"><a class="page-link" href="?offset=0">1</a></li>
       <li class="page-item"><a class="page-link" href="?offset=1">2</a></li>

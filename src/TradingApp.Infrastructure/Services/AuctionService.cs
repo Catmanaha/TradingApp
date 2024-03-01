@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using TradingApp.Core.Dtos;
 using TradingApp.Core.Enums;
 using TradingApp.Core.Models;
 using TradingApp.Core.Models.ReturnsForServices;
@@ -11,32 +12,44 @@ namespace TradingApp.Infrastructure.Services;
 public class AuctionService : IAuctionService
 {
     private readonly IAuctionRepository auctionRepository;
-    private readonly IStockRepository stockRepository;
     private readonly UserManager<User> userManager;
     private readonly IBidRepository bidRepository;
     private readonly IUserStockService userStockService;
     private readonly IUserStockRepository userStockRepository;
+    private readonly IStockService stockService;
 
     public AuctionService(
         IAuctionRepository auctionRepository,
-        IStockRepository stockRepository,
         UserManager<User> userManager,
         IBidRepository bidRepository,
         IUserStockService userStockService,
-        IUserStockRepository userStockRepository
+        IUserStockRepository userStockRepository,
+        IStockService stockService
     )
     {
         this.auctionRepository = auctionRepository;
-        this.stockRepository = stockRepository;
         this.userManager = userManager;
         this.bidRepository = bidRepository;
         this.userStockService = userStockService;
         this.userStockRepository = userStockRepository;
+        this.stockService = stockService;
+    }
+
+    public async Task<Auction> GetById(int id)
+    {
+        var auction = await auctionRepository.GetByIdAsync(id);
+
+        if (auction is null)
+        {
+            throw new NullReferenceException("Auction not found");
+        }
+
+        return auction;
     }
 
     public async Task ChangeStatus(AuctionStatusEnum status, int id)
     {
-        var auction = await auctionRepository.GetByIdAsync(id);
+        var auction = await GetById(id);
         auction.Status = status;
 
 
@@ -49,9 +62,9 @@ public class AuctionService : IAuctionService
                 await auctionRepository.UpdateAsync(auction);
 
                 var userAuctionn = await userManager.FindByIdAsync(auction.UserId.ToString());
-                var stockk = await stockRepository.GetByIdAsync(auction.StockUuid);
+                var stockk = await stockService.GetByIdAsync(auction.StockUuid);
 
-                await userStockService.CreateAsync(new UserStock
+                await userStockRepository.CreateAsync(new UserStock
                 {
                     StockCount = auction.InitialPrice / stockk.Price,
                     StockUuid = stockk.Uuid,
@@ -67,7 +80,7 @@ public class AuctionService : IAuctionService
 
             var userBidded = await userManager.FindByIdAsync(highestBid.UserId.ToString());
             var userAuction = await userManager.FindByIdAsync(auction.UserId.ToString());
-            var stock = await stockRepository.GetByIdAsync(auction.StockUuid);
+            var stock = await stockService.GetByIdAsync(auction.StockUuid);
 
             var userStock = new UserStock
             {
@@ -101,7 +114,7 @@ public class AuctionService : IAuctionService
 
         foreach (var auction in auctions)
         {
-            var stock = await stockRepository.GetByIdAsync(auction.StockUuid);
+            var stock = await stockService.GetByIdAsync(auction.StockUuid);
 
             auctionForUsers.Add(new AuctionForUser
             {
@@ -122,7 +135,7 @@ public class AuctionService : IAuctionService
     {
         var query = from auction in await auctionRepository.GetAllAsync()
                     join user in await userManager.Users.ToListAsync() on auction.UserId equals user.Id
-                    join stock in await stockRepository.GetAllAsync() on auction.StockUuid equals stock.Uuid
+                    join stock in await stockService.GetAll() on auction.StockUuid equals stock.Uuid
                     select new AuctionForUser
                     {
                         StockName = stock.Name,
@@ -135,5 +148,58 @@ public class AuctionService : IAuctionService
                     };
 
         return query;
+    }
+
+    public async Task Sell(SellAuctionDto dto)
+    {
+        var userStock = await userStockService.GetById(dto.UserStockId);
+        var totalCount = userStock.StockCount - dto.Count;
+
+        if (totalCount < 0)
+        {
+            throw new ArgumentException("U do not own that much stocks");
+        }
+
+        await userStockRepository.Sell(userStock, dto.Count);
+
+
+    }
+
+    public async Task<Auction> CreateAsync(SellAuctionDto dto)
+    {
+        var exceptions = new List<Exception>();
+
+        if (dto.Count == 0) {
+            exceptions.Add(new ArgumentException("Count cannot be 0"));
+        }
+
+        if (dto.Count < 0) {
+            exceptions.Add(new ArgumentException("Count cannot be negative"));
+        }
+
+        if (dto.InitialPrice < 0) {
+            exceptions.Add(new ArgumentException("InitialPrice cannot be negative"));
+        }
+
+
+        if (string.IsNullOrEmpty(dto.StockUuid)) {
+            exceptions.Add(new ArgumentException("Stock uuid cannot be empty"));
+        }
+
+        if (exceptions.Any()) {
+            throw new AggregateException(exceptions);
+        }
+
+        var auction = await auctionRepository.CreateAsync(new Auction
+        {
+            InitialPrice = dto.InitialPrice,
+            StartTime = dto.StartTime,
+            EndTime = dto.EndTime,
+            Status = dto.Status,
+            StockUuid = dto.StockUuid,
+            UserId = dto.UserId
+        });
+
+        return auction;
     }
 }

@@ -3,7 +3,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using TradingApp.Core.Enums;
 using TradingApp.Core.Models;
-using TradingApp.Presentation.Dtos;
+using TradingApp.Core.Dtos;
+using TradingApp.Core.Services;
 
 namespace TradingApp.Presentation.Controllers;
 
@@ -11,18 +12,18 @@ namespace TradingApp.Presentation.Controllers;
 public class UserController : Controller
 {
     private readonly UserManager<User> userManager;
-    private readonly RoleManager<IdentityRole<int>> roleManager;
     private readonly SignInManager<User> signInManager;
+    private readonly IUserService userService;
 
     public UserController(
         UserManager<User> userManager,
-        RoleManager<IdentityRole<int>> roleManager,
-        SignInManager<User> signInManager
+        SignInManager<User> signInManager,
+        IUserService userService
     )
     {
         this.userManager = userManager;
-        this.roleManager = roleManager;
         this.signInManager = signInManager;
+        this.userService = userService;
     }
 
     public async Task<IActionResult> Logout()
@@ -47,36 +48,7 @@ public class UserController : Controller
             return View();
         }
 
-        var user = new User
-        {
-            UserName = userDto.Username,
-            Email = userDto.Email
-        };
-
-        var result = await userManager.CreateAsync(user, userDto.Password);
-
-        if (!result.Succeeded)
-        {
-
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError(error.Code, error.Description);
-            }
-
-            if (ModelState.Any())
-            {
-                return View();
-            }
-
-        }
-
-        var userRole = new IdentityRole<int>
-        {
-            Name = UserRolesEnum.User.ToString()
-        };
-
-        await roleManager.CreateAsync(userRole);
-        await userManager.AddToRoleAsync(user, UserRolesEnum.User.ToString());
+        await userService.Register(userDto);
 
         return RedirectToAction("Login");
     }
@@ -91,30 +63,16 @@ public class UserController : Controller
 
     [HttpPost]
     [AllowAnonymous]
-    public async Task<IActionResult> Login(UserLoginDto userdto)
+    public async Task<IActionResult> Login(UserLoginDto userDto)
     {
         if (ModelState.IsValid == false)
         {
             return View();
         }
 
-        var user = await userManager.FindByEmailAsync(userdto.Email);
+        await userService.Login(userDto);
 
-        if (user is null)
-        {
-            ViewData.Add("Error", "No user with this email found");
-            return View();
-        }
-
-        var result = await signInManager.PasswordSignInAsync(user, userdto.Password, true, true);
-
-        if (result.Succeeded == false)
-        {
-            ViewData.Add("Error", "Incorrect Credentials");
-            return View();
-        }
-
-        return RedirectPermanent(userdto.ReturnUrl ?? "/");
+        return RedirectPermanent(userDto.ReturnUrl ?? "/");
 
     }
 
@@ -131,33 +89,21 @@ public class UserController : Controller
             return View();
         }
 
-        var user = await userManager.GetUserAsync(User);
-
-        var result = await userManager.ChangePasswordAsync(user, dto.CurrentPassword, dto.NewPassword);
-
-        if (result.Succeeded == false)
-        {
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError(error.Code, error.Description);
-            }
-
-            return View();
-        }
+        await userService.ChangePassword(dto, User);
 
         return RedirectToAction("Profile");
     }
 
     public async Task<IActionResult> Profile()
     {
-        var user = await userManager.GetUserAsync(User);
+        var user = await userService.GetUser(User);
 
         return View(user);
     }
 
     public async Task<IActionResult> CashIn()
     {
-        var user = await userManager.GetUserAsync(User);
+        var user = await userService.GetUser(User);
 
         return View(user);
     }
@@ -165,7 +111,7 @@ public class UserController : Controller
     [HttpPost]
     public async Task<IActionResult> CashIn(CashInDto dto)
     {
-        var user = await userManager.GetUserAsync(User);
+        var user = await userService.GetUser(User);
         user.Balance += dto.AmoutToAdd;
 
         await userManager.UpdateAsync(user);

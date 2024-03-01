@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using TradingApp.Core.Dtos;
 using TradingApp.Core.Models;
 using TradingApp.Core.Models.ReturnsForServices;
 using TradingApp.Core.Repositories;
@@ -24,6 +25,32 @@ public class BidService : IBidService
         this.userManager = userManager;
     }
 
+    public async Task Bid(BidDto dto)
+    {
+        var highestBid = await bidRepository.GetHighestBidForAuction(dto.AuctionId);
+        var auction = await auctionRepository.GetByIdAsync(dto.AuctionId);
+
+        if (highestBid is null && dto.BidAmount < auction.InitialPrice)
+        {
+            throw new ArgumentException($"Bid should be more than the initial price '{auction.InitialPrice}'", nameof(auction.InitialPrice));
+        }
+
+        if (highestBid is not null && highestBid.BidAmount > dto.BidAmount)
+        {
+            throw new ArgumentException($"Bid should be more than the highest bid '{highestBid.BidAmount}'", nameof(highestBid.BidAmount));
+        }
+    }
+
+    public async Task CreateAsync(BidDto dto, User user)
+    {
+        await bidRepository.CreateAsync(new Bid
+        {
+            AuctionId = dto.AuctionId,
+            BidAmount = dto.BidAmount,
+            BidTime = DateTime.Now,
+            UserId = user.Id,
+        });
+    }
 
     public async Task<IEnumerable<BidForAuction>> GetAllForAuction(int id)
     {
