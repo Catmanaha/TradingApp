@@ -28,6 +28,11 @@ public class StockService : IStockService
     public async Task<IEnumerable<StockOHLC>> GetStockOHLC(string id)
     {
 
+        if (string.IsNullOrEmpty(id) || string.IsNullOrWhiteSpace(id))
+        {
+            throw new ArgumentException("Id cannot be empty");
+        }
+
         var stocks = await stockRepository.GetStockOHLC(id);
 
         if (stocks is null)
@@ -40,6 +45,15 @@ public class StockService : IStockService
 
     public async Task<IEnumerable<StockPriceHistory>> GetStockPriceHistory(string id, string timestamp = "24h")
     {
+
+        if (string.IsNullOrEmpty(id) || string.IsNullOrWhiteSpace(id))
+        {
+            throw new ArgumentException("Id cannot be empty");
+        }
+
+        if (string.IsNullOrEmpty(timestamp) || string.IsNullOrWhiteSpace(timestamp)) {
+            throw new ArgumentException("Id cannot be empty");
+        }
 
         var stocks = await stockRepository.GetStockPriceHistory(id, timestamp);
 

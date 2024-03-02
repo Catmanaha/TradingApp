@@ -27,6 +27,11 @@ public class BidService : IBidService
 
     public async Task Bid(BidDto dto)
     {
+        if (dto is null)
+        {
+            throw new NullReferenceException("Dto cannot be null");
+        }
+
         var highestBid = await bidRepository.GetHighestBidForAuction(dto.AuctionId);
         var auction = await auctionRepository.GetByIdAsync(dto.AuctionId);
 
@@ -43,6 +48,26 @@ public class BidService : IBidService
 
     public async Task CreateAsync(BidDto dto, User user)
     {
+        if (dto.AuctionId < 0)
+        {
+            throw new ArgumentException("AuctionId cannot be negative");
+        }
+
+        if (dto.BidAmount < 0)
+        {
+            throw new ArgumentException("BidAmount cannot be negative");
+        }
+
+        if (dto is null)
+        {
+            throw new NullReferenceException("Dto cannot be null");
+        }
+
+        if (user is null)
+        {
+            throw new NullReferenceException("User cannot be null");
+        }
+
         await bidRepository.CreateAsync(new Bid
         {
             AuctionId = dto.AuctionId,
@@ -54,6 +79,11 @@ public class BidService : IBidService
 
     public async Task<IEnumerable<BidForAuction>> GetAllForAuction(int id)
     {
+        if (id < 0)
+        {
+            throw new ArgumentException("Id cannot be negative");
+        }
+
         var query = from bid in await bidRepository.GetAllAsync()
                     join auction in await auctionRepository.GetAllByIdAsync(id) on bid.AuctionId equals auction.Id
                     join user in await userManager.Users.ToListAsync() on bid.UserId equals user.Id
@@ -64,6 +94,11 @@ public class BidService : IBidService
                         UserName = user.UserName,
                         AuctionId = bid.AuctionId
                     };
+
+        if (query is null)
+        {
+            return Enumerable.Empty<BidForAuction>();
+        }
 
         return query;
     }
