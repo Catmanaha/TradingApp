@@ -1,0 +1,40 @@
+@model IEnumerable<UserStockForUser>
+
+<h1>All my Stocks</h1>
+
+@if (Model.Any() == false)
+{
+  <span>No stocks found</span>
+}
+else
+{
+  <table class="table table-hover table-dark">
+    <thead>
+      <tr>
+        <th style="width: 3em;" scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col">Total Price</th>
+        <th scope="col">Count</th>
+        <th scope="col"></th>
+        <th scope="col"></th>
+      </tr>
+    </thead>
+    <tbody>
+      @foreach (var userStock in Model)
+      {
+        <tr>
+          <td><img style="height: 3em; width: 3em" src="@userStock.StockIconUrl" alt="@userStock.StockName"></td>
+          <td>@userStock.StockName</td>
+          <td>@userStock.UserStockTotalPrice</td>
+          <td>@userStock.StockCount</td>
+          <td><button onclick="redirectToAction('/UserStock/Sell?stockName=@userStock.StockName&userStockId=@userStock.UserStockId')" type="button" class="btn btn-danger">Sell</button></td>
+          <td><button onclick="redirectToAction('/Auction/Sell?stockUuid=@userStock.StockUuid&userStockId=@userStock.UserStockId')" type="button" class="btn btn-danger">Sell on Auction</button></td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}
+
+@section Scripts {
+  <script src="~/js/site.js" asp-append-version="true"></script>
+}

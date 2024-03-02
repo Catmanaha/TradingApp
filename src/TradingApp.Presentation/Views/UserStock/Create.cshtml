@@ -1,0 +1,26 @@
+@model UserStockViewModel
+
+@{
+    int userId = Model.UserId;
+    string stockUuid = Model.StockUuid;
+    double stockPrice = Model.Price;
+    string stockName = Model.StockName;
+    int stockCount = 0;
+}
+
+<h1>Buy stock @Model.StockName</h1>
+
+<form asp-action="Create" method="post">
+    <div class="text-danger" asp-validation-summary="All"></div>
+    
+    <input hidden asp-for="@stockName" type="text" class="form-control">
+    <input hidden asp-for="@userId" type="text" class="form-control">
+    <input hidden asp-for="@stockUuid" type="text" class="form-control">
+    <input hidden asp-for="@stockPrice" type="text" class="form-control">
+    <div class="form-group">
+        <label asp-for="@stockCount">Count</label>
+        <input asp-for="@stockCount" value=@stockCount type="number" class="form-control">
+    </div>
+    <br>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>

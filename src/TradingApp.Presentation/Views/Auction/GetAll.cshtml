@@ -1,0 +1,43 @@
+@model IEnumerable<AuctionForUser>
+
+@{
+    DateTime defaultEndTime = default;
+}
+
+<h1>All Auctions</h1>
+
+@if (Model.Any() == false)
+{
+    <span>No auctions found</span>
+}
+else
+{
+    <table class="table table-hover table-dark">
+        <thead>
+            <tr>
+                <th scope="col">User</th>
+                <th scope="col">Stock</th>
+                <th scope="col">Initial Price</th>
+                <th scope="col">Status</th>
+                <th scope="col">StartTime</th>
+                <th scope="col">EndTime</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var auction in Model)
+            {
+                <tr>
+                    <td>@auction.UserName</td>
+                    <td>@auction.StockName</td>
+                    <td>@auction.AuctionInitialPrice</td>
+                    <td>@auction.AuctionStatus</td>
+                    <td>@auction.AuctionStartTime</td>
+                    <td>@(auction.AuctionEndTime == defaultEndTime ? " " : auction.AuctionEndTime)</td>
+                    <td><button onclick="redirectToAction('/Auction/Auction?id=@auction.AuctionId')" type="button"
+              class="btn btn-danger">Enter</button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
