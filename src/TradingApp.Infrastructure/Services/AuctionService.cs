@@ -37,6 +37,11 @@ public class AuctionService : IAuctionService
 
     public async Task<Auction> GetById(int id)
     {
+        if (id < 0)
+        {
+            throw new ArgumentException("Id cannot be negative");
+        }
+
         var auction = await auctionRepository.GetByIdAsync(id);
 
         if (auction is null)
@@ -49,6 +54,11 @@ public class AuctionService : IAuctionService
 
     public async Task ChangeStatus(AuctionStatusEnum status, int id)
     {
+        if (id < 0)
+        {
+            throw new ArgumentException("Id cannot be negative");
+        }
+
         var auction = await GetById(id);
         auction.Status = status;
 
@@ -108,6 +118,11 @@ public class AuctionService : IAuctionService
 
     public async Task<IEnumerable<AuctionForUser>> GetAllForUser(int id)
     {
+        if (id < 0)
+        {
+            throw new ArgumentException("Id cannot be negative");
+        }
+
         var auctions = await auctionRepository.GetAllForUserAsync(id);
         var user = await userManager.Users.FirstOrDefaultAsync(o => o.Id == id);
         var auctionForUsers = new List<AuctionForUser>();
@@ -147,6 +162,11 @@ public class AuctionService : IAuctionService
                         AuctionId = auction.Id
                     };
 
+        if (query is null)
+        {
+            return Enumerable.Empty<AuctionForUser>();
+        }
+
         return query;
     }
 
@@ -169,24 +189,29 @@ public class AuctionService : IAuctionService
     {
         var exceptions = new List<Exception>();
 
-        if (dto.Count == 0) {
+        if (dto.Count == 0)
+        {
             exceptions.Add(new ArgumentException("Count cannot be 0"));
         }
 
-        if (dto.Count < 0) {
+        if (dto.Count < 0)
+        {
             exceptions.Add(new ArgumentException("Count cannot be negative"));
         }
 
-        if (dto.InitialPrice < 0) {
+        if (dto.InitialPrice < 0)
+        {
             exceptions.Add(new ArgumentException("InitialPrice cannot be negative"));
         }
 
 
-        if (string.IsNullOrEmpty(dto.StockUuid)) {
+        if (string.IsNullOrEmpty(dto.StockUuid))
+        {
             exceptions.Add(new ArgumentException("Stock uuid cannot be empty"));
         }
 
-        if (exceptions.Any()) {
+        if (exceptions.Any())
+        {
             throw new AggregateException(exceptions);
         }
 

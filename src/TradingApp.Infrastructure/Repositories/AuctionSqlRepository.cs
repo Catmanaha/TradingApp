@@ -22,11 +22,11 @@ public class AuctionSqlRepository : IAuctionRepository
         return model;
     }
 
-    public async Task<IEnumerable<Auction>> GetAllAsync() {
+    public async Task<IEnumerable<Auction>?> GetAllAsync() {
         return await DBC.Auctions.ToListAsync();
     }
 
-    public async Task<IEnumerable<Auction>> GetAllByIdAsync(int id)
+    public async Task<IEnumerable<Auction>?> GetAllByIdAsync(int id)
     {
         return await DBC.Auctions.Where(o => o.Id == id).ToListAsync();
     }

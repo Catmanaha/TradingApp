@@ -22,7 +22,7 @@ public class BidSqlRepository : IBidRepository
         return model;
     }
 
-    public async Task<IEnumerable<Bid>> GetAllAsync()
+    public async Task<IEnumerable<Bid>?> GetAllAsync()
     {
         return await DBC.Bids.ToListAsync();
     }
