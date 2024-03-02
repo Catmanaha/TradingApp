@@ -1,0 +1,31 @@
+@model SellAuctionViewModel
+
+@{
+    int count = default;
+    var userStockId = Model.UserStockId;
+    var stockUuid = Model.Auction.StockUuid;
+    var userId = Model.Auction.UserId;
+    var initialPrice = Model.Auction.InitialPrice;
+    var startTime = Model.Auction.StartTime;
+    var endTime = Model.Auction.EndTime;
+    var status = Model.Auction.Status;
+
+}
+
+
+<form asp-action="Sell" method="post">
+    <div class="text-danger" asp-validation-summary="All"></div>
+    <input hidden asp-for="@userStockId" type="text" class="form-control">
+    <input hidden asp-for="@stockUuid" type="text" class="form-control">
+    <input hidden asp-for="@userId" type="text" class="form-control">
+    <input hidden asp-for="@initialPrice" type="text" class="form-control">
+    <input hidden asp-for="@startTime" type="text" class="form-control">
+    <input hidden asp-for="@endTime" type="text" class="form-control">
+    <input hidden asp-for="@status" type="text" class="form-control">
+    <div class="form-group">
+        <label asp-for="@count">Count</label>
+        <input asp-for="@count" value=@count type="number" class="form-control">
+    </div>
+    <br>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>

@@ -1,0 +1,18 @@
+@model int
+
+@{
+    int auctionId = Model;
+    double bidAmount = default;
+}
+
+
+<form asp-action="Bid" method="post">
+    <div class="text-danger" asp-validation-summary="All"></div>
+    <input hidden asp-for="@auctionId" type="text" class="form-control">
+    <div class="form-group">
+        <label asp-for="@bidAmount">Bid Amount</label>
+        <input asp-for="@bidAmount" value=@bidAmount type="number" step="any" class="form-control">
+    </div>
+    <br>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>

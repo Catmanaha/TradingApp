@@ -1,0 +1,168 @@
+@model Stock
+
+<div style="background-color: @Model.Color;">
+  <h1>
+    <img style="width: 1.5em" src="@Model.IconUrl" alt="@Model.Name">
+    @Model.Name
+  </h1>
+
+  <h2>Symbol: @Model.Symbol</h2>
+  <h2>Price: @Model.Price $</h2>
+  <h2>Change: @Model.Change</h2>
+  <h2>24h Volume: @Model._24hVolume</h2>
+  <button onclick="showCanvas1()" type="button" class="btn btn-primary">Go
+    to @Model.Name Price History</button>
+  <button onclick="showCanvas2()" type="button" class="btn btn-primary">Go to
+    @Model.Name Price OHCL</button>
+  <button onclick="redirectToAction('/UserStock/Create?stockName=@Model.Name&stockUuid=@Model.Uuid&price=@Model.Price')" type="button" class="btn btn-primary">Buy</button>
+</div>
+<canvas id="stockChart" width="800" height="400"></canvas>
+<canvas id="stockOHCLChart" width="800" height="400"></canvas>
+
+<script>
+
+
+  var canvas1 = document.getElementById('stockChart');
+  var canvas2 = document.getElementById('stockOHCLChart');
+
+  function showCanvas1() {
+    canvas1.style.display = 'block';
+    canvas2.style.display = 'none';
+    renderChart1();
+  }
+
+  function showCanvas2() {
+    canvas1.style.display = 'none';
+    canvas2.style.display = 'block';
+    renderChart2();
+  }
+
+  function renderChart1() {
+    var idJson = JSON.parse('@Html.Raw(Json.Serialize(Model.Uuid))');
+
+    var urlPriceHistory = '/Stock/GetPriceHistory?id=' + encodeURIComponent(idJson);
+
+    fetch(urlPriceHistory)
+      .then(response => response.json())
+      .then(data => {
+        var timestamps = data.map(entry => entry.DateTime);
+        var prices = data.map(entry => entry.Price);
+
+        var ctx = document.getElementById('stockChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: timestamps,
+            datasets: [{
+              label: 'Stock Price',
+              data: prices,
+              backgroundColor: 'rgba(54, 162, 235, 0.2)',
+              borderColor: 'rgba(54, 162, 235, 1)',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            scales: {
+              xAxes: [{
+                type: 'time',
+                time: {
+                  unit: 'minute'
+                },
+                scaleLabel: {
+                  display: true,
+                  labelString: 'Time'
+                }
+              }],
+              yAxes: [{
+                scaleLabel: {
+                  display: true,
+                  labelString: 'Price'
+                }
+              }]
+            }
+          }
+        });
+      });
+  }
+
+  function renderChart2() {
+    var idJson = JSON.parse('@Html.Raw(Json.Serialize(Model.Uuid))');
+    var urlOhcl = '/Stock/GetOHCL?id=' + encodeURIComponent(idJson);
+
+    fetch(urlOhcl)
+      .then(response => response.json())
+      .then(ohcldata => {
+        var labels = ohcldata.map(entry => entry.StartingAtDateTime + " - " + entry.EndingAtDateTime);
+        var opens = ohcldata.map(entry => entry.Open);
+        var closes = ohcldata.map(entry => entry.Close);
+        var highs = ohcldata.map(entry => entry.High);
+        var lows = ohcldata.map(entry => entry.Low);
+        var averages = ohcldata.map(entry => entry.Average);
+
+        var ctx = document.getElementById('stockOHCLChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Open',
+              data: opens,
+              borderColor: 'rgba(255, 99, 132, 1)',
+              borderWidth: 1,
+              fill: false
+            }, {
+              label: 'Close',
+              data: closes,
+              borderColor: 'rgba(54, 162, 235, 1)',
+              borderWidth: 1,
+              fill: false
+            }, {
+              label: 'High',
+              data: highs,
+              borderColor: 'rgba(255, 206, 86, 1)',
+              borderWidth: 1,
+              fill: false
+            }, {
+              label: 'Low',
+              data: lows,
+              borderColor: 'rgba(75, 192, 192, 1)',
+              borderWidth: 1,
+              fill: false
+            }, {
+              label: 'Average',
+              data: averages,
+              borderColor: 'rgba(153, 102, 255, 1)',
+              borderWidth: 1,
+              fill: false
+            }]
+          },
+          options: {
+            scales: {
+              xAxes: [{
+                type: 'time',
+                time: {
+                  unit: 'hour'
+                },
+                scaleLabel: {
+                  display: true,
+                  labelString: 'Time'
+                }
+              }],
+              yAxes: [{
+                scaleLabel: {
+                  display: true,
+                  labelString: 'Value'
+                }
+              }]
+            }
+          }
+        });
+      });
+  }
+
+</script>
+
+
+@section Scripts {
+  <script src="~/js/site.js" asp-append-version="true"></script>
+}

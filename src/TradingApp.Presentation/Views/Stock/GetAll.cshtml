@@ -1,0 +1,69 @@
+@model StocksGetAllViewModel
+
+<h1>All Stocks</h1>
+
+@if (Model.Stocks.Any() == false)
+{
+  <span>No stocks found</span>
+}
+else
+{
+  <table id="stock_table" class="table table-hover table-dark table-striped">
+    <thead>
+      <tr>
+        <th scope="col"></th>
+        <th scope="col">Symbol</th>
+        <th scope="col">Name</th>
+        <th scope="col">Price</th>
+        <th scope="col">Change</th>
+        <th scope="col">24h Volume</th>
+        <th scope="col">Market Capacity</th>
+        <th scope="col"></th>
+      </tr>
+    </thead>
+    <tbody>
+      @foreach (var stock in Model.Stocks)
+      {
+        <tr style="cursor: pointer">
+          <td><img style="height: 3em; width: 3em" src="@stock.IconUrl" alt="@stock.Name"></td>
+          <td>@stock.Symbol</td>
+          <td>@stock.Name</td>
+          <td>@stock.Price</td>
+          <td>@stock.Change</td>
+          <td>@stock._24hVolume</td>
+          <td>@stock.MarketCap</td>
+          <td><button onclick="redirectToAction('/Stock/Get?id=@stock.Uuid')" type="button"
+              class="btn btn-primary">Enter</button></td>
+        </tr>
+      }
+    </tbody>
+  </table>
+  <nav aria-label="Page navigation example">
+    <ul class="pagination justify-content-end">
+      @if (Model.Offset != 0)
+      {
+        <li class="page-item"><a class="page-link" href="?offset=@(Model.Offset - 1)">Previous</a></li>
+      }
+      <li class="page-item"><a class="page-link" href="?offset=0">1</a></li>
+      <li class="page-item"><a class="page-link" href="?offset=1">2</a></li>
+      <li class="page-item"><a class="page-link" href="?offset=2">3</a></li>
+      @if (Model.Offset != 1000)
+      {
+        <li class="page-item"><a class="page-link" href="?offset=@(Model.Offset + 1)">Next</a></li>
+      }
+    </ul>
+  </nav>
+}
+
+@section Scripts {
+  <script src="~/js/site.js" asp-append-version="true"></script>
+  <script>
+    $(document).ready(function () {
+      $("#stock_table").DataTable({
+        info: false,
+        paging: false,
+      });
+    });
+
+  </script>
+}
