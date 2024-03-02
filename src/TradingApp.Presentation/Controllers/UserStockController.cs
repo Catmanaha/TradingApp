@@ -13,58 +13,90 @@ public class UserStockController : Controller
 {
     private readonly UserManager<User> userManager;
     private readonly IUserStockService userStockService;
+    private readonly IUserService userService;
 
     public UserStockController(
         UserManager<User> userManager,
-        IUserStockService userStockService
+        IUserStockService userStockService,
+        IUserService userService
     )
     {
         this.userManager = userManager;
         this.userStockService = userStockService;
+        this.userService = userService;
     }
 
     public IActionResult Create(string stockName, string stockUuid, double price)
     {
-        return View(new UserStockViewModel
+        try
         {
-            UserId = int.Parse(userManager.GetUserId(User)),
-            Price = price,
-            StockName = stockName,
-            StockUuid = stockUuid
-        });
+
+            return View(new UserStockViewModel
+            {
+                UserId = userService.GetId(User),
+                Price = price,
+                StockName = stockName,
+                StockUuid = stockUuid
+            });
+
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError("Error", ex.Message);
+            return View();
+        }
+
     }
 
     [HttpPost]
     public async Task<IActionResult> Create(UserStockDto userStockDto)
     {
-        if (ModelState.IsValid == false)
+        try
         {
-            return View(new UserStockViewModel
+
+
+            if (ModelState.IsValid == false)
             {
-                UserId = int.Parse(userManager.GetUserId(User)),
-                Price = userStockDto.StockPrice,
-                StockName = userStockDto.StockName,
-                StockUuid = userStockDto.StockUuid
-            });
+                return View(new UserStockViewModel
+                {
+                    UserId = userService.GetId(User),
+                    Price = userStockDto.StockPrice,
+                    StockName = userStockDto.StockName,
+                    StockUuid = userStockDto.StockUuid
+                });
+            }
+
+            var user = await userManager.GetUserAsync(User);
+
+            await userStockService.CreateAsync(userStockDto, user);
+
+            return RedirectToAction("GetAllForUser");
+
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError("Error", ex.Message);
+            return View();
         }
 
-        var user = await userManager.GetUserAsync(User);
 
-        await userStockService.CreateAsync(userStockDto, user);
-
-        return RedirectToAction("GetAllForUser");
     }
 
     public async Task<IActionResult> GetAllForUser()
     {
-        if (userManager.GetUserId(User) is null)
+        try
+        {
+
+            var id = userService.GetId(User);
+            var stocks = await userStockService.GetAllForUser(id);
+
+            return View(stocks);
+
+        }
+        catch (Exception ex)
         {
             return RedirectToAction("Login", "User");
         }
-
-        var stocks = await userStockService.GetAllForUser(int.Parse(userManager.GetUserId(User)));
-
-        return View(stocks);
     }
 
     public IActionResult Sell(string stockName, int userStockId)
@@ -89,9 +121,21 @@ public class UserStockController : Controller
             });
         }
 
-        await userStockService.Sell(dto);
+        try
+        {
 
-        return RedirectToAction("Profile", "User");
+            await userStockService.Sell(dto);
+            return RedirectToAction("Profile", "User");
+
+
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError("Error", ex.Message);
+            return View();
+        }
+
+
     }
 
     [AllowAnonymous]

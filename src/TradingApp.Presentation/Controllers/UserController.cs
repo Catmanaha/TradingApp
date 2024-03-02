@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using TradingApp.Core.Enums;
 using TradingApp.Core.Models;
 using TradingApp.Core.Dtos;
 using TradingApp.Core.Services;
@@ -48,9 +47,19 @@ public class UserController : Controller
             return View();
         }
 
-        await userService.Register(userDto);
+        try
+        {
 
-        return RedirectToAction("Login");
+            await userService.Register(userDto);
+            return RedirectToAction("Login");
+
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError("Error", ex.Message);
+            return View();
+        }
+
     }
 
     [AllowAnonymous]
@@ -70,9 +79,19 @@ public class UserController : Controller
             return View();
         }
 
-        await userService.Login(userDto);
+        try
+        {
 
-        return RedirectPermanent(userDto.ReturnUrl ?? "/");
+            await userService.Login(userDto);
+            return RedirectPermanent(userDto.ReturnUrl ?? "/");
+
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError("Error", ex.Message);
+            return View();
+        }
+
 
     }
 
@@ -89,34 +108,74 @@ public class UserController : Controller
             return View();
         }
 
-        await userService.ChangePassword(dto, User);
+        try
+        {
+            await userService.ChangePassword(dto, User);
+            return RedirectToAction("Profile");
 
-        return RedirectToAction("Profile");
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError("Error", ex.Message);
+            return View();
+        }
+
+
     }
 
     public async Task<IActionResult> Profile()
     {
-        var user = await userService.GetUser(User);
+        try
+        {
+            var user = await userService.GetUser(User);
+            return View(user);
 
-        return View(user);
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError("Error", ex.Message);
+            return View();
+        }
+
     }
 
     public async Task<IActionResult> CashIn()
     {
-        var user = await userService.GetUser(User);
 
-        return View(user);
+        try
+        {
+            var user = await userService.GetUser(User);
+            return View(user);
+
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError("Error", ex.Message);
+            return View();
+        }
+
     }
 
     [HttpPost]
     public async Task<IActionResult> CashIn(CashInDto dto)
     {
-        var user = await userService.GetUser(User);
-        user.Balance += dto.AmoutToAdd;
 
-        await userManager.UpdateAsync(user);
+        try
+        {
+            var user = await userService.GetUser(User);
+            user.Balance += dto.AmoutToAdd;
 
-        return RedirectToAction("Profile");
+            await userManager.UpdateAsync(user);
+            return RedirectToAction("Profile");
+
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError("Error", ex.Message);
+            return View();
+        }
+
+
     }
 
     [AllowAnonymous]

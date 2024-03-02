@@ -1,6 +1,6 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
-using TradingApp.Core.Repositories;
+using TradingApp.Core.Models.Stocks;
 using TradingApp.Core.Services;
 using TradingApp.Presentation.ViewModels;
 
@@ -17,36 +17,78 @@ public class StockController : Controller
 
     public async Task<IActionResult> GetAll(int offset = 0)
     {
-        var stocks = await stockService.GetAllWithOffsetAsync(offset);
 
-        return View(new StocksGetAllViewModel
+        try
         {
-            Stocks = stocks,
-            Offset = offset
-        });
+            var stocks = await stockService.GetAllWithOffsetAsync(offset);
+
+            return View(new StocksGetAllViewModel
+            {
+                Stocks = stocks,
+                Offset = offset
+            });
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError("Error", ex.Message);
+            return View();
+        }
+
+
     }
 
     public async Task<IActionResult> Get(string id)
     {
-        var stock = await stockService.GetByIdAsync(id);
 
-        return View(stock);
+        try
+        {
+            var stock = await stockService.GetByIdAsync(id);
+            return View(stock);
+
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError("Error", ex.Message);
+            return View();
+        }
+
+
     }
 
     public async Task<IActionResult> GetPriceHistory(string id)
     {
-        var stockPriceHistory = await stockService.GetStockPriceHistory(id);
-        var json = JsonSerializer.Serialize(stockPriceHistory);
+        try
+        {
+            var stockPriceHistory = await stockService.GetStockPriceHistory(id);
+            var json = JsonSerializer.Serialize(stockPriceHistory);
 
-        return Content(json, "application/json");
+            return Content(json, "application/json");
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError("Error", ex.Message);
+            return View();
+        }
+
+
     }
 
     public async Task<IActionResult> GetOHCL(string id)
     {
-        var stockPriceHistory = await stockService.GetStockOHLC(id);
-        var json = JsonSerializer.Serialize(stockPriceHistory);
+        try
+        {
+            var stockOHCL = await stockService.GetStockOHLC(id);
+            var json = JsonSerializer.Serialize(stockOHCL);
 
-        return Content(json, "application/json");
+            return Content(json, "application/json");
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError("Error", ex.Message);
+            return View();
+        }
+
+
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
