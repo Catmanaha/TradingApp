@@ -73,26 +73,6 @@ public class BidServiceTests
         await Assert.ThrowsAsync<ArgumentException>(async () => await bidService.GetAllForAuction(id));
     }
 
-    // [Fact]
-    // public async void GetAllForAuction_QueryNull_ReturnEmptyCollection()
-    // {
-    //     var id = 1;
-    //     var bidRepoMock = new Mock<IBidRepository>();
-    //     var auctionRepoMock = new Mock<IAuctionRepository>();
-    //     var userManagerRepoMock = new Mock<UserManager<User>>();
-
-    //     bidRepoMock.Setup(repo => repo.GetAllAsync()).ReturnsAsync((IEnumerable<Bid>?)null);
-    //     auctionRepoMock.Setup(repo => repo.GetAllByIdAsync(id)).ReturnsAsync((IEnumerable<Auction>?)null);
-    //     userManagerRepoMock.Setup(manager => manager.Users.ToListAsync()).ReturnsAsync((List<User>?)null);
-
-    //     var bidService = new BidService(bidRepoMock.Object, auctionRepoMock.Object, userManagerRepoMock.Object);
-
-    //     var bids = await bidService.GetAllForAuction(id);
-
-    //     Assert.Equal(Enumerable.Empty<BidForAuction>(), bids);
-    // }
-
-
     [Fact]
     public async void CreateAsync_ParametersIncorrect_ThrowExceptions()
     {
