@@ -1,8 +1,3 @@
-using Moq;
-using TradingApp.Core.Models;
-using TradingApp.Core.Repositories;
-using TradingApp.Infrastructure.Services;
-
 namespace TradingApp.UnitTest;
 
 public class AuctionUnitTests

@@ -1,12 +1,3 @@
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Moq;
-using TradingApp.Core.Dtos;
-using TradingApp.Core.Models;
-using TradingApp.Core.Models.ReturnsForServices;
-using TradingApp.Core.Repositories;
-using TradingApp.Infrastructure.Services;
-
 namespace TradingApp.UnitTest;
 
 public class BidServiceTests
