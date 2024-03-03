@@ -26,6 +26,11 @@ public class UserService : IUserService
 
     public async Task<User> GetById(int id)
     {
+        if (id < 0)
+        {
+            throw new ArgumentException("Id cannot be negative");
+        }
+
         var user = await userManager.FindByIdAsync(id.ToString());
 
         if (user is null)
@@ -38,6 +43,11 @@ public class UserService : IUserService
 
     public int GetId(ClaimsPrincipal user)
     {
+        if (user is null)
+        {
+            throw new NullReferenceException("User cannot be null");
+        }
+
         var id = userManager.GetUserId(user);
 
         if (id is null)
@@ -50,6 +60,16 @@ public class UserService : IUserService
 
     public async Task ChangePassword(ChangePasswordDto dto, ClaimsPrincipal user)
     {
+        if (dto is null)
+        {
+            throw new NullReferenceException("Dto cannot be null");
+        }
+
+        if (user is null)
+        {
+            throw new NullReferenceException("User cannot be null");
+        }
+
         var userResult = await userManager.GetUserAsync(user);
         var result = await userManager.ChangePasswordAsync(userResult, dto.CurrentPassword, dto.NewPassword);
 
@@ -70,6 +90,11 @@ public class UserService : IUserService
 
     public async Task<User> GetUser(ClaimsPrincipal user)
     {
+        if (user is null)
+        {
+            throw new NullReferenceException("User cannot be null");
+        }
+
         var result = await userManager.GetUserAsync(user);
 
         if (result is null)
@@ -80,16 +105,21 @@ public class UserService : IUserService
         return result;
     }
 
-    public async Task Login(UserLoginDto userdto)
+    public async Task Login(UserLoginDto userDto)
     {
-        var user = await userManager.FindByEmailAsync(userdto.Email);
+        if (userDto is null)
+        {
+            throw new NullReferenceException("Dto cannot be null");
+        }
+
+        var user = await userManager.FindByEmailAsync(userDto.Email);
 
         if (user is null)
         {
             throw new NullReferenceException("No user with this email found");
         }
 
-        var result = await signInManager.PasswordSignInAsync(user, userdto.Password, true, true);
+        var result = await signInManager.PasswordSignInAsync(user, userDto.Password, true, true);
 
         if (result.Succeeded == false)
         {
@@ -99,6 +129,11 @@ public class UserService : IUserService
 
     public async Task Register(UserRegisterDto userDto)
     {
+        if (userDto is null)
+        {
+            throw new NullReferenceException("Dto cannot be null");
+        }
+
         var user = new User
         {
             UserName = userDto.Username,
