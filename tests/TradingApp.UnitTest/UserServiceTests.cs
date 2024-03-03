@@ -1,9 +1,5 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
-using Moq;
-using TradingApp.Core.Dtos;
-using TradingApp.Core.Models;
-using TradingApp.Infrastructure.Services;
 
 namespace TradingApp.UnitTest;
 

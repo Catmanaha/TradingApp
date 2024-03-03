@@ -1,7 +1,4 @@
-using Moq;
 using TradingApp.Core.Models.Stocks;
-using TradingApp.Core.Repositories;
-using TradingApp.Infrastructure.Services;
 
 namespace TradingApp.UnitTest;
 

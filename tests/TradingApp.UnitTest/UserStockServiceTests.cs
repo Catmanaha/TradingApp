@@ -1,9 +1,3 @@
-using Moq;
-using TradingApp.Core.Dtos;
-using TradingApp.Core.Models;
-using TradingApp.Core.Repositories;
-using TradingApp.Infrastructure.Services;
-
 namespace TradingApp.UnitTest;
 
 public class UserStockServiceTests
