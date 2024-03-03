@@ -8,32 +8,23 @@
 }
 else
 {
-  <div class="container">
-    <div class="row">
-      <div class="col-sm border" >
-        Symbol:
-      </div>
-      <div class="col-sm border">
-        Name:
-      </div>
-      <div class="col-sm border">
-        Market Capacity:
-      </div>
-    </div>
-    @foreach (var stock in Model)
-    {
-      <div class="row">
-        <div class="col-sm border">
-          @stock.Symbol
-        </div>
-        <div class="col-sm border">
-          @stock.Name
-        </div>
-        <div class="col-sm border">
-          @stock.MarketCap
-        </div>
-      </div>
-    }
-  </div>
-
+  <table class="table table-hover table-dark">
+    <thead>
+      <tr>
+        <th scope="col">Symbol</th>
+        <th scope="col">Name</th>
+        <th scope="col">Market Capacity</th>
+      </tr>
+    </thead>
+    <tbody>
+      @foreach (var stock in Model)
+      {
+        <tr>
+          <td>@stock.Symbol</td>
+          <td>@stock.Name</td>
+          <td>@stock.MarketCap</td>
+        </tr>
+      }
+    </tbody>
+  </table>
 }

@@ -2,7 +2,7 @@ CREATE TABLE [Stocks] (
     [Id] int PRIMARY KEY identity ,
     [Symbol] nvarchar(max),
     [Name] nvarchar(max),
-    [MarketCap] nvarchar(max)
+    [MarketCap] bigint
 )
 
 CREATE TABLE [Users] (
@@ -12,10 +12,13 @@ CREATE TABLE [Users] (
     [Surname] nvarchar(max),
     [Password] nvarchar(max)
 )
- 
 
-CREATE TABLE [UsersStocks] (
+CREATE TABLE [Logs] (
+    [Id] int PRIMARY KEY identity ,
     [UserId] int,
-    [StockId] int,
-    [StockCount] int
+    [Url] nvarchar(max),
+    [MethodType] nvarchar(max),
+    [StatusCode] int,
+    [RequestBody] nvarchar(max),
+    [ResponseBody] nvarchar(max)
 )
