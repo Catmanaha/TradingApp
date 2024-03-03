@@ -1,20 +1,30 @@
-using Microsoft.Data.SqlClient;
-using TradingApp.Models;
+using TradingApp.Middlewares;
+using TradingApp.Models.Managers;
 using TradingApp.Repositories;
 using TradingApp.Repositories.Base;
+using TradingApp.Repositories.Base.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddHttpContextAccessor();
 
-string? connectionString = builder.Configuration.GetConnectionString("TradingAppDb");
+string connectionStringKey = "TradingAppDb";
+string? connectionString = builder.Configuration.GetConnectionString("DefaultConnectionString");
 
-ArgumentNullException.ThrowIfNull(connectionString);
-
-builder.Services.AddScoped<IStockRepository>(p =>
+if (string.IsNullOrEmpty(connectionString))
 {
-    return new StockSqlRepository(new SqlConnection(connectionString));
-});
+    throw new NullReferenceException($"No connection string found in appsettings.json with a key '{connectionStringKey}'");
+}
+
+builder.Services.Configure<ConnectionManager>(builder.Configuration.GetSection("ConnectionStrings"));
+builder.Services.Configure<LogManager>(builder.Configuration.GetSection("LoggerManager"));
+
+builder.Services.AddScoped<IStockRepository, StockSqlRepository>();
+builder.Services.AddScoped<IUserRepository, UserSqlRepository>();
+builder.Services.AddScoped<ILogRepository, LogSqlRepository>();
+
+builder.Services.AddTransient<LogMiddleware>();
 
 var app = builder.Build();
 
@@ -31,9 +41,11 @@ app.UseRouting();
 
 app.UseAuthorization();
 
+app.UseMiddleware<LogMiddleware>();
+
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Stock}/{action=GetAll}");
+    pattern: "{controller=Home}/{action=Index}");
 
 app.Run();
 
