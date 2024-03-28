@@ -1,27 +1,27 @@
 @{
     string username = string.Empty;
-    string surname = string.Empty;
     string email = string.Empty;
     string password = string.Empty;
 }
 
-<h1>Register</h1>
+<link rel="stylesheet" href="~/css/login.css">
 
-<form asp-action="Register" method="post">
+<form id="loginForm" asp-action="Register" method="post">
+    <h1>Register</h1>
     <div class="text-danger" asp-validation-summary="All"></div>
 
     <div class="form-group">
         <label asp-for="@username">Username</label>
-        <input asp-for="@username" type="text" class="form-control">
+        <input asp-for="@username" type="text">
     </div>
     <div class="form-group">
         <label asp-for="@email">Email</label>
-        <input asp-for="@email" type="email" class="form-control">
+        <input asp-for="@email" type="email">
     </div>
     <div class="form-group">
         <label asp-for="@password">Password</label>
-        <input asp-for="@password" type="password" class="form-control">
+        <input asp-for="@password" type="password">
     </div>
     <br>
-    <button type="submit" class="btn btn-primary">Register</button>
+    <button type="submit" class="submitbtn">Register</button>
 </form>

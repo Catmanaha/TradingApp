@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using TradingApp.Core.Models;
 using TradingApp.Core.Dtos;
 using TradingApp.Core.Services;
+using Microsoft.AspNetCore.Authentication.Google;
 
 namespace TradingApp.Presentation.Controllers;
 
@@ -81,7 +82,6 @@ public class UserController : Controller
 
         try
         {
-
             await userService.Login(userDto);
             return RedirectPermanent(userDto.ReturnUrl ?? "/");
 

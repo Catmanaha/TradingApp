@@ -1,32 +1,35 @@
 @model User
 
-<div class="card" style="width: 24rem;">
-  <ul class="list-group list-group-flush">
-    <li class="list-group-item">Name: @Model.UserName</li>
-    <li class="list-group-item">Email: @Model.Email</li>
-  </ul>
+<link rel="stylesheet" href="~/css/login.css">
 
-</div>
-<br>
-<button onclick="redirectToAction('/User/ChangePassword')" type="button" class="btn btn-dark">Change Password</button>
-<br>
-<br>
-<div class="input-group mb-3">
-  <div class="input-group-prepend">
-    <span class="input-group-text" id="basic-addon3">Balance</span>
+<form id="loginForm">
+  <h1>Profile</h1>
+  <div>
+    <label for="Username">Username</label>
+    <input id="Username" type="text" disabled value="@Model.UserName">
   </div>
-  <input disabled value="@Model.Balance" type="text" class="form-control" id="basic-url"
-    aria-describedby="basic-addon3">
-  <button type="button" class="btn btn-dark" onclick="redirectToAction('/User/CashIn')">Cash In</button>
-</div>
-<div class="input-group mb-3">
-  <div class="input-group-prepend">
-    <span class="input-group-text" id="basic-addon3">Stocks Balance</span>
+  <div>
+    <label for="Email">Email</label>
+    <input id="Email" type="email" value="@Model.Email" disabled>
   </div>
-  <input disabled value="@Model.StocksBalance" type="text" class="form-control" id="basic-url"
-    aria-describedby="basic-addon3">
-  <button type="button" class="btn btn-dark" onclick="redirectToAction('/UserStock/GetAllForUser')">My Stocks</button>
-</div>
+  <br>
+  <button onclick="redirectToAction('/User/ChangePassword')" type="button" class="submitbtn">Change Password</button>
+  <br>
+  <br>
+  <div>
+    <label for="Balance">Balance</label>
+    <input id="Balance" type="text" value="@Model.Balance" disabled>
+    <button type="button" class="submitbtn" onclick="redirectToAction('/User/CashIn')">Cash In</button>
+
+  </div>
+  <br>
+  <div>
+    <label for="StockBalance">Stocks Balance</label>
+    <input id="StockBalance" type="text" value="@Model.StocksBalance" disabled>
+    <button type="button" class="submitbtn" onclick="redirectToAction('/UserStock/GetAllForUser')">My Stocks</button>
+  </div>
+</form>
+
 @section Scripts {
   <script src="~/js/site.js" asp-append-version="true"></script>
 }
