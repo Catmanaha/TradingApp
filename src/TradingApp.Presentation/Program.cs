@@ -1,7 +1,7 @@
 using System.Reflection;
 using System.Security.Claims;
 using TradingApp.Core.Enums;
-using TradingApp.Core.Models.Managers;
+using TradingApp.Core.Models.Configurations;
 using TradingApp.Infrastructure.Extensions;
 using TradingApp.Presentation.Middlewares;
 
@@ -19,8 +19,8 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddTransient<LogMiddleware>();
 
-builder.Services.Configure<LogManager>(builder.Configuration.GetSection("LoggerManager"));
-builder.Services.Configure<ApiManager>(builder.Configuration.GetSection("ApiManager"));
+builder.Services.Configure<LogConfiguration>(builder.Configuration.GetSection("LoggerConfiguration"));
+builder.Services.Configure<StockApiConfiguration>(builder.Configuration.GetSection("StockApiConfiguration"));
 
 builder.Services.InitDbContext(builder.Configuration, Assembly.GetExecutingAssembly());
 builder.Services.Inject();

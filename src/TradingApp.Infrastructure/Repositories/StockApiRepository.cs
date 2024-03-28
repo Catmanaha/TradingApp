@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
-using TradingApp.Core.Models.Managers;
+using TradingApp.Core.Models.Configurations;
 using TradingApp.Core.Models.Stocks;
 using TradingApp.Core.Repositories;
 
@@ -10,7 +10,7 @@ public class StockApiRepository : IStockRepository
 {
     private readonly HttpClient client;
 
-    public StockApiRepository(IOptions<ApiManager> options, HttpClient client)
+    public StockApiRepository(IOptions<StockApiConfiguration> options, HttpClient client)
     {
         this.client = client;
         client.BaseAddress = new Uri(options.Value.BaseUrl);

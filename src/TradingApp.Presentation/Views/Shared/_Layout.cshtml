@@ -1,9 +1,11 @@
 ﻿@inject IAuthorizationService authorizationService
 
 @{
+    
     var isAdmin = authorizationService.AuthorizeAsync(User, "Admins").Result.Succeeded;
     var isAuthenticated = User.Identity.IsAuthenticated;
 }
+
 
 <!DOCTYPE html>
 <html lang="en">

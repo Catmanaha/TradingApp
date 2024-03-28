@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using TradingApp.Core.Models;
-using TradingApp.Core.Models.Managers;
+using TradingApp.Core.Models.Configurations;
 using TradingApp.Core.Repositories;
 
 namespace TradingApp.Presentation.Middlewares;
@@ -10,23 +10,23 @@ namespace TradingApp.Presentation.Middlewares;
 public class LogMiddleware : IMiddleware
 {
     private readonly ILogRepository repository;
-    private readonly IOptionsMonitor<LogManager> optionsMonitor;
+    private readonly LogConfiguration logManager;
     private readonly UserManager<User> userManager;
 
     public LogMiddleware(
         ILogRepository repository,
-        IOptionsMonitor<LogManager> optionsMonitor,
+        IOptionsSnapshot<LogConfiguration> optionsSnapshot,
         UserManager<User> userManager
     )
     {
         this.repository = repository;
-        this.optionsMonitor = optionsMonitor;
+        this.logManager = optionsSnapshot.Value;
         this.userManager = userManager;
     }
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        if (optionsMonitor.CurrentValue.IsLoggerEnabled == false)
+        if (logManager.IsLoggerEnabled == false)
         {
             await next.Invoke(context);
             return;
@@ -52,7 +52,7 @@ public class LogMiddleware : IMiddleware
         context.Response.Body.Seek(0, SeekOrigin.Begin);
 
         await context.Response.Body.CopyToAsync(originalResponseBody);
-        
+
         await repository.CreateAsync(new Log
         {
             UserId = userId,
