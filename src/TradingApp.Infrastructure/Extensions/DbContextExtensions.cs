@@ -31,7 +31,7 @@ public static class DbContextExtensions
 
         serviceCollection.AddIdentity<User, IdentityRole<int>>(o =>
                                                 {
-                                        o.Password.RequiredLength = 8;
+                                                    o.Password.RequiredLength = 8;
                                                 }
                                                 ).AddEntityFrameworkStores<TradingAppDbContext>();
         serviceCollection.ConfigureApplicationCookie(o =>

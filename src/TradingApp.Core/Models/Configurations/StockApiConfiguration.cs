@@ -1,6 +1,6 @@
-namespace TradingApp.Core.Models.Managers;
+namespace TradingApp.Core.Models.Configurations;
 
-public class ApiManager
+public class StockApiConfiguration
 {
     public string? BaseUrl { get; set; }
     public Dictionary<string, string>? Headers { get; set; }
