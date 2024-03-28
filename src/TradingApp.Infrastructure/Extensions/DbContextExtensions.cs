@@ -34,11 +34,13 @@ public static class DbContextExtensions
                                                     o.Password.RequiredLength = 8;
                                                 }
                                                 ).AddEntityFrameworkStores<TradingAppDbContext>();
+
         serviceCollection.ConfigureApplicationCookie(o =>
         {
             o.AccessDeniedPath = "/User/AccessDenied";
             o.LoginPath = "/User/Login";
         });
+        
 
     }
 }

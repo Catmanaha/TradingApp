@@ -84,7 +84,7 @@ public class BidService : IBidService
             throw new ArgumentException("Id cannot be negative");
         }
 
-        var query = from bid in await bidRepository.GetAllAsync()
+        var query = from bid in (await bidRepository.GetAllAsync()).OrderByDescending(g => g.AuctionId)
                     join auction in await auctionRepository.GetAllByIdAsync(id) on bid.AuctionId equals auction.Id
                     join user in await userManager.Users.ToListAsync() on bid.UserId equals user.Id
                     select new BidForAuction
