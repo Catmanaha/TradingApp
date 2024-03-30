@@ -5,7 +5,6 @@ using TradingApp.Core.Enums;
 using TradingApp.Presentation.ViewModels;
 using TradingApp.Core.Services;
 using TradingApp.Core.Dtos;
-using TradingApp.Core.Models.ReturnsForServices;
 
 namespace TradingApp.Presentation.Controllers;
 
@@ -38,127 +37,85 @@ public class AuctionController : Controller
     [HttpPost]
     public async Task<IActionResult> Bid(BidDto dto)
     {
-        try
-        {
-            await bidService.Bid(dto);
-            var user = await userService.GetUser(User);
-
-            await bidService.CreateAsync(dto, user);
-            return RedirectToAction("Auction", new { id = dto.AuctionId });
-
-        }
-        catch (Exception ex)
-        {
-            ModelState.AddModelError("Error", ex.Message);
-            return View();
+        if (!ModelState.IsValid) {
+            return View(dto.AuctionId);
         }
 
+        var result = await bidService.Bid(dto);
+
+        if (!string.IsNullOrEmpty(result))
+        {
+            ModelState.AddModelError("Error", result);
+            return View(dto.AuctionId);
+        }
+
+        var user = await userService.GetUser(User);
+
+        await bidService.CreateAsync(dto, user);
+        return RedirectToAction("Auction", new { id = dto.AuctionId });
     }
 
     public async Task<IActionResult> ChangeStatus(AuctionStatusEnum status, int id)
     {
-        try
-        {
-            await auctionService.ChangeStatus(status, id);
-            return RedirectToAction("Auction", new { id });
-
-        }
-        catch (Exception ex)
-        {
-            ModelState.AddModelError("Error", ex.Message);
-            return View();
-        }
-
+        await auctionService.ChangeStatus(status, id);
+        return RedirectToAction("Auction", new { id });
     }
 
     [AllowAnonymous]
     public async Task<IActionResult> GetAll()
     {
-        try
-        {
-            var auctions = await auctionService.GetAllForView();
+        var auctions = await auctionService.GetAllForView();
 
-            return View(auctions);
-        }
-        catch (Exception ex)
-        {
-            ModelState.AddModelError("Error", ex.Message);
-            return View();
-        }
-
+        return View(auctions);
     }
 
     public async Task<IActionResult> Auction(int id)
     {
-        try
-        {
-            var auction = await auctionService.GetById(id);
-            var bids = await bidService.GetAllForAuction(auction.Id);
-            var auctionUser = await userService.GetById(auction.UserId);
-            var currentUser = await userService.GetUser(User);
-            var stockName = (await stockService.GetByIdAsync(auction.StockUuid)).Name;
+        var auction = await auctionService.GetById(id);
+        var bids = await bidService.GetAllForAuction(auction.Id);
+        var auctionUser = await userService.GetById(auction.UserId);
+        var currentUser = await userService.GetUser(User);
+        var stock = await stockService.GetByIdAsync(auction.StockUuid);
 
-            return View(new AuctionViewModel
-            {
-                Auction = auction,
-                Bids = bids,
-                AuctionUser = auctionUser,
-                CurrentUser = currentUser,
-                StockName = stockName
-            });
-        }
-        catch (Exception ex)
+        return View(new AuctionViewModel
         {
-            ModelState.AddModelError("Error", ex.Message);
-            return View();
-        }
+            Auction = auction,
+            Bids = bids,
+            AuctionUser = auctionUser,
+            CurrentUser = currentUser,
+            StockName = stock.Name,
+            StockIconUrl = stock.IconUrl
+        });
     }
 
     public async Task<IActionResult> GetAllForUser()
     {
-        try
-        {
-            var result = await auctionService.GetAllForUser(userService.GetId(User));
+        var result = await auctionService.GetAllForUser(userService.GetId(User));
 
-            return View(result);
-        }
-        catch (Exception ex)
-        {
-            ModelState.AddModelError("Error", ex.Message);
-            return View();
-        }
+        return View(result);
 
     }
 
     public async Task<IActionResult> Sell(string stockUuid, int userStockId)
     {
+        var userId = userService.GetId(User);
+        var stock = await stockService.GetByIdAsync(stockUuid);
 
-        try
+        var auction = new Auction
         {
-            var userId = userService.GetId(User);
-            var stock = await stockService.GetByIdAsync(stockUuid);
+            StartTime = DateTime.Now,
+            InitialPrice = stock.Price,
+            EndTime = default,
+            Status = AuctionStatusEnum.Open,
+            UserId = userId,
+            StockUuid = stockUuid
+        };
 
-            var auction = new Auction
-            {
-                StartTime = DateTime.Now,
-                InitialPrice = stock.Price,
-                EndTime = default,
-                Status = AuctionStatusEnum.Open,
-                UserId = userId,
-                StockUuid = stockUuid
-            };
-
-            return View(new SellAuctionViewModel
-            {
-                Auction = auction,
-                UserStockId = userStockId
-            });
-        }
-        catch (Exception ex)
+        return View(new SellAuctionViewModel
         {
-            ModelState.AddModelError("Error", ex.Message);
-            return View();
-        }
+            Auction = auction,
+            UserStockId = userStockId
+        });
 
     }
 
@@ -184,22 +141,23 @@ public class AuctionController : Controller
             });
         }
 
-        try
+        var result = await auctionService.Sell(dto);
+
+        if (!string.IsNullOrEmpty(result))
         {
-            await auctionService.Sell(dto);
-
-            auction.InitialPrice *= dto.Count;
-
-            await auctionService.CreateAsync(dto);
-
-            return RedirectToAction("GetAllForUser");
-        }
-        catch (Exception ex)
-        {
-            ModelState.AddModelError("Error", ex.Message);
-            return View();
+            ModelState.AddModelError("Error", result);
+            return View(new SellAuctionViewModel
+            {
+                Auction = auction,
+                UserStockId = dto.UserStockId
+            });
         }
 
+        auction.InitialPrice *= dto.Count;
+
+        await auctionService.CreateAsync(dto);
+
+        return RedirectToAction("GetAllForUser");
     }
 
     [AllowAnonymous]

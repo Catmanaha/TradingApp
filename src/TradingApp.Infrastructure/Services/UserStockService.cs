@@ -25,7 +25,7 @@ public class UserStockService : IUserStockService
     }
 
 
-    public async Task Sell(SellUserStockDto dto)
+    public async Task<string> Sell(SellUserStockDto dto)
     {
         if (dto is null)
         {
@@ -38,7 +38,7 @@ public class UserStockService : IUserStockService
 
         if (totalCount < 0)
         {
-            throw new ArgumentException("You do not own that much stocks");
+            return "You do not own that much stocks";
         }
 
         var countBefore = userStock.StockCount;
@@ -50,9 +50,10 @@ public class UserStockService : IUserStockService
         user.StocksBalance -= (userStock.TotalPrice / countBefore) * dto.StockCount;
 
         await userManager.UpdateAsync(user);
+        return null;
     }
 
-    public async Task<UserStock> CreateAsync(UserStockDto userStockDto, User user)
+    public async Task<string> CreateAsync(UserStockDto userStockDto, User user)
     {
         if (userStockDto is null)
         {
@@ -70,7 +71,7 @@ public class UserStockService : IUserStockService
 
         if (newUserBalace < 0)
         {
-            throw new ArgumentException("You do not have enough money");
+            return "You do not have enough money";
         }
 
         user.StocksBalance += totalPrice;
@@ -100,7 +101,7 @@ public class UserStockService : IUserStockService
             await userStockRepository.UpdateAsync(userStocksFiltered);
         }
 
-        return userStock;
+        return null;
     }
 
     public async Task<IEnumerable<UserStockForUser>> GetAllForUser(int id)

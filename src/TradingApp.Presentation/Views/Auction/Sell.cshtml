@@ -12,9 +12,12 @@
 
 }
 
+<link rel="stylesheet" href="~/css/login.css">
 
-<form asp-action="Sell" method="post">
+<form id="loginForm" asp-action="Sell" method="post">
+    <h1>Sell on auction</h1>
     <div class="text-danger" asp-validation-summary="All"></div>
+
     <input hidden asp-for="@userStockId" type="text" class="form-control">
     <input hidden asp-for="@stockUuid" type="text" class="form-control">
     <input hidden asp-for="@userId" type="text" class="form-control">
@@ -27,5 +30,5 @@
         <input asp-for="@count" value=@count type="number" class="form-control">
     </div>
     <br>
-    <button type="submit" class="btn btn-primary">Submit</button>
+    <button type="submit" class="submitbtn">Sell</button>
 </form>

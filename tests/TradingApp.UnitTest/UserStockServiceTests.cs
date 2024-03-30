@@ -27,25 +27,6 @@ public class UserStockServiceTests
     }
 
     [Fact]
-    public async void CreateAsync_NewuserBalanceNegative_ThrowArgumentException()
-    {
-        var service = new UserStockService(null, null, null);
-
-        var user = new User
-        {
-            Balance = 0
-        };
-
-        var dto = new UserStockDto
-        {
-            StockPrice = 1,
-            StockCount = 1
-        };
-
-        await Assert.ThrowsAsync<ArgumentException>(() => service.CreateAsync(dto, user));
-    }
-
-    [Fact]
     public async void GetAllForUser_IdNegative_ThrowArgumentException()
     {
         var id = -1;

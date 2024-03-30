@@ -170,19 +170,19 @@ public class AuctionService : IAuctionService
         return query;
     }
 
-    public async Task Sell(SellAuctionDto dto)
+    public async Task<string> Sell(SellAuctionDto dto)
     {
         var userStock = await userStockService.GetById(dto.UserStockId);
         var totalCount = userStock.StockCount - dto.Count;
 
         if (totalCount < 0)
         {
-            throw new ArgumentException("U do not own that much stocks");
+            return "U do not own that much stocks";
         }
 
         await userStockRepository.Sell(userStock, dto.Count);
 
-
+        return null;
     }
 
     public async Task<Auction> CreateAsync(SellAuctionDto dto)

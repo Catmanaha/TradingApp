@@ -4,10 +4,13 @@
     int stockCount = default;
 }
 
-<h1>Sell stock @Model.StockName</h1>
+<link rel="stylesheet" href="~/css/login.css">
 
-<form asp-action="Sell" method="post">
+<form id="loginForm" asp-action="Sell" method="post">
+    <h1>Sell stock @Model.StockName</h1>
+
     <div class="text-danger" asp-validation-summary="All"></div>
+
     <input hidden asp-for="@Model.UserStockId" type="text" class="form-control">
     <input hidden asp-for="@Model.StockName" type="text" class="form-control">
     <div class="form-group">
@@ -15,5 +18,5 @@
         <input asp-for="@stockCount" value=@stockCount type="number" step="any" class="form-control">
     </div>
     <br>
-    <button type="submit" class="btn btn-primary">Submit</button>
+    <button type="submit" class="submitbtn">Sell</button>
 </form>

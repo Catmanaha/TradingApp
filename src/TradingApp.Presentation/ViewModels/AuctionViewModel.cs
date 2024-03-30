@@ -10,4 +10,5 @@ public class AuctionViewModel
     public User? AuctionUser { get; set; }
     public User? CurrentUser { get; set; }
     public string? StockName { get; set; }
+    public string? StockIconUrl { get; set; }
 }

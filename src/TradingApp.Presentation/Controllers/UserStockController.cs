@@ -28,75 +28,55 @@ public class UserStockController : Controller
 
     public IActionResult Create(string stockName, string stockUuid, double price)
     {
-        try
+        return View(new UserStockViewModel
         {
-
-            return View(new UserStockViewModel
-            {
-                UserId = userService.GetId(User),
-                Price = price,
-                StockName = stockName,
-                StockUuid = stockUuid
-            });
-
-        }
-        catch (Exception ex)
-        {
-            ModelState.AddModelError("Error", ex.Message);
-            return View();
-        }
-
+            UserId = userService.GetId(User),
+            Price = price,
+            StockName = stockName,
+            StockUuid = stockUuid
+        });
     }
 
     [HttpPost]
     public async Task<IActionResult> Create(UserStockDto userStockDto)
     {
-        try
+
+        if (!ModelState.IsValid)
         {
-
-
-            if (ModelState.IsValid == false)
+            return View(new UserStockViewModel
             {
-                return View(new UserStockViewModel
-                {
-                    UserId = userService.GetId(User),
-                    Price = userStockDto.StockPrice,
-                    StockName = userStockDto.StockName,
-                    StockUuid = userStockDto.StockUuid
-                });
-            }
-
-            var user = await userManager.GetUserAsync(User);
-
-            await userStockService.CreateAsync(userStockDto, user);
-
-            return RedirectToAction("GetAllForUser");
-
+                UserId = userService.GetId(User),
+                Price = userStockDto.StockPrice,
+                StockName = userStockDto.StockName,
+                StockUuid = userStockDto.StockUuid
+            });
         }
-        catch (Exception ex)
+
+        var user = await userManager.GetUserAsync(User);
+
+        var result = await userStockService.CreateAsync(userStockDto, user);
+
+        if (!string.IsNullOrEmpty(result))
         {
-            ModelState.AddModelError("Error", ex.Message);
-            return View();
+            ModelState.AddModelError("Error", result);
+            return View(new UserStockViewModel
+            {
+                UserId = userService.GetId(User),
+                Price = userStockDto.StockPrice,
+                StockName = userStockDto.StockName,
+                StockUuid = userStockDto.StockUuid
+            });
         }
 
-
+        return RedirectToAction("GetAllForUser");
     }
 
     public async Task<IActionResult> GetAllForUser()
     {
-        try
-        {
+        var id = userService.GetId(User);
+        var stocks = await userStockService.GetAllForUser(id);
 
-            var id = userService.GetId(User);
-            var stocks = await userStockService.GetAllForUser(id);
-
-            return View(stocks);
-
-        }
-        catch (Exception ex)
-        {
-            return RedirectToAction("Login", "User");
-        }
+        return View(stocks);
     }
 
     public IActionResult Sell(string stockName, int userStockId)
@@ -121,21 +101,19 @@ public class UserStockController : Controller
             });
         }
 
-        try
+        var result = await userStockService.Sell(dto);
+
+        if (!string.IsNullOrEmpty(result))
         {
-
-            await userStockService.Sell(dto);
-            return RedirectToAction("Profile", "User");
-
-
-        }
-        catch (Exception ex)
-        {
-            ModelState.AddModelError("Error", ex.Message);
-            return View();
+            ModelState.AddModelError("Error", result);
+            return View(new SellUserStockViewModel
+            {
+                UserStockId = dto.UserStockId,
+                StockName = dto.StockName
+            });
         }
 
-
+        return RedirectToAction("Profile", "User");
     }
 
     [AllowAnonymous]

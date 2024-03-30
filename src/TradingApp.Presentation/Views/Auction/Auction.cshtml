@@ -1,5 +1,6 @@
 @model AuctionViewModel
 
+<img style="height: 3em; width: 3em" src="@Model.StockIconUrl" alt="@Model.StockName"> <h3>Solana</h3>
 <h3>Auction from '@Model.AuctionUser.UserName'. Stock: @Model.StockName. Initial Price: @Model.Auction.InitialPrice</h3>
 <h2>Status: @Model.Auction.Status</h2>
 
@@ -11,7 +12,7 @@
 }
 else
 {
-    <table class="table table-hover table-dark">
+    <table id="myTable" class="table table-hover table-dark table-striped">
         <thead>
             <tr>
                 <th scope="col">Name</th>
@@ -57,4 +58,13 @@ else if (Model.AuctionUser.Id == Model.CurrentUser.Id && Model.Auction.Status ==
 
 @section Scripts {
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        $(document).ready(function () {
+            $("#myTable").DataTable({
+                info: false,
+                paging: false,
+            });
+        });
+
+    </script>
 }

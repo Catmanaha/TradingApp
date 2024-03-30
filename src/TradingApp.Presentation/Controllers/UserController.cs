@@ -4,24 +4,20 @@ using Microsoft.AspNetCore.Mvc;
 using TradingApp.Core.Models;
 using TradingApp.Core.Dtos;
 using TradingApp.Core.Services;
-using Microsoft.AspNetCore.Authentication.Google;
 
 namespace TradingApp.Presentation.Controllers;
 
 [Authorize]
 public class UserController : Controller
 {
-    private readonly UserManager<User> userManager;
     private readonly SignInManager<User> signInManager;
     private readonly IUserService userService;
 
     public UserController(
-        UserManager<User> userManager,
         SignInManager<User> signInManager,
         IUserService userService
     )
     {
-        this.userManager = userManager;
         this.signInManager = signInManager;
         this.userService = userService;
     }
@@ -43,24 +39,13 @@ public class UserController : Controller
     [AllowAnonymous]
     public async Task<IActionResult> Register(UserRegisterDto userDto)
     {
-        if (ModelState.IsValid == false)
+        if (!ModelState.IsValid)
         {
             return View();
         }
 
-        try
-        {
-
-            await userService.Register(userDto);
-            return RedirectToAction("Login");
-
-        }
-        catch (Exception ex)
-        {
-            ModelState.AddModelError("Error", ex.Message);
-            return View();
-        }
-
+        await userService.Register(userDto);
+        return RedirectToAction("Login");
     }
 
     [AllowAnonymous]
@@ -75,24 +60,13 @@ public class UserController : Controller
     [AllowAnonymous]
     public async Task<IActionResult> Login(UserLoginDto userDto)
     {
-        if (ModelState.IsValid == false)
+        if (!ModelState.IsValid)
         {
             return View();
         }
 
-        try
-        {
-            await userService.Login(userDto);
-            return RedirectPermanent(userDto.ReturnUrl ?? "/");
-
-        }
-        catch (Exception ex)
-        {
-            ModelState.AddModelError("Error", ex.Message);
-            return View();
-        }
-
-
+        await userService.Login(userDto);
+        return RedirectPermanent(userDto.ReturnUrl ?? "/");
     }
 
     public IActionResult ChangePassword()
@@ -103,79 +77,52 @@ public class UserController : Controller
     [HttpPost]
     public async Task<IActionResult> ChangePassword(ChangePasswordDto dto)
     {
-        if (ModelState.IsValid == false)
+        if (!ModelState.IsValid)
         {
             return View();
         }
 
-        try
-        {
-            await userService.ChangePassword(dto, User);
-            return RedirectToAction("Profile");
-
-        }
-        catch (Exception ex)
-        {
-            ModelState.AddModelError("Error", ex.Message);
-            return View();
-        }
-
-
+        await userService.ChangePassword(dto, User);
+        return RedirectToAction("Profile");
     }
 
     public async Task<IActionResult> Profile()
     {
-        try
-        {
-            var user = await userService.GetUser(User);
-            return View(user);
-
-        }
-        catch (Exception ex)
-        {
-            ModelState.AddModelError("Error", ex.Message);
-            return View();
-        }
-
+        var user = await userService.GetUser(User);
+        return View(user);
     }
 
     public async Task<IActionResult> CashIn()
     {
-
-        try
-        {
-            var user = await userService.GetUser(User);
-            return View(user);
-
-        }
-        catch (Exception ex)
-        {
-            ModelState.AddModelError("Error", ex.Message);
-            return View();
-        }
-
+        var user = await userService.GetUser(User);
+        return View(user);
     }
 
     [HttpPost]
     public async Task<IActionResult> CashIn(CashInDto dto)
     {
-
-        try
+        if (!ModelState.IsValid)
         {
             var user = await userService.GetUser(User);
-            user.Balance += dto.AmoutToAdd;
-
-            await userManager.UpdateAsync(user);
-            return RedirectToAction("Profile");
-
-        }
-        catch (Exception ex)
-        {
-            ModelState.AddModelError("Error", ex.Message);
-            return View();
+            return View(user);
         }
 
+        await userService.CashIn(User, dto.AmoutToAdd);
+        return RedirectToAction("Profile");
+    }
 
+    [Authorize(Policy = "Admins")]
+    public async Task<IActionResult> GetAll()
+    {
+        return View((await userService.GetAllAsync()).Where(o => o.UserName != "Admin"));
+    }
+
+    [Authorize(Policy = "Admins")]
+    [HttpDelete]
+    public async Task<IActionResult> Delete(int userId)
+    {
+        await userService.DeleteAsync(userId);
+        return RedirectToAction("GetAll");
     }
 
     [AllowAnonymous]

@@ -18,15 +18,20 @@
   <br>
   <div>
     <label for="Balance">Balance</label>
-    <input id="Balance" type="text" value="@Model.Balance" disabled>
-    <button type="button" class="submitbtn" onclick="redirectToAction('/User/CashIn')">Cash In</button>
-
+    <div style="display: flex;">
+      <input id="Balance" type="text" value="@Model.Balance" disabled>
+      <button style="margin: 0px; height: 50px;" type="button" class="submitbtn"
+        onclick="redirectToAction('/User/CashIn')">Cash In</button>
+    </div>
   </div>
   <br>
   <div>
     <label for="StockBalance">Stocks Balance</label>
-    <input id="StockBalance" type="text" value="@Model.StocksBalance" disabled>
-    <button type="button" class="submitbtn" onclick="redirectToAction('/UserStock/GetAllForUser')">My Stocks</button>
+    <div style="display: flex;">
+      <input id="StockBalance" type="text" value="@Model.StocksBalance" disabled>
+      <button style="margin: 0px; height: 50px;" type="button" class="submitbtn"
+        onclick="redirectToAction('/UserStock/GetAllForUser')">My Stocks</button>
+    </div>
   </div>
 </form>
 

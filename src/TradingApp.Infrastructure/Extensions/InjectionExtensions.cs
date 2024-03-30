@@ -16,14 +16,16 @@ public static class InjectionExtensions
         serviceCollection.AddScoped<IAuctionService, AuctionService>();
         serviceCollection.AddScoped<IUserService, UserService>();
         serviceCollection.AddScoped<IUserStockService, UserStockService>();
+        serviceCollection.AddScoped<INewsService, NewsService>();
 
+        serviceCollection.AddSingleton<INewsRepository, NewsApiRepository>();
         serviceCollection.AddSingleton<IStockRepository, StockApiRepository>();
         serviceCollection.AddScoped<IBidRepository, BidSqlRepository>();
         serviceCollection.AddScoped<IAuctionRepository, AuctionSqlRepository>();
         serviceCollection.AddScoped<IUserStockRepository, UserStockSqlRepository>();
         serviceCollection.AddScoped<ILogRepository, LogSqlRepository>();
 
-        serviceCollection.AddSingleton<HttpClient>();
+        serviceCollection.AddTransient<HttpClient>();
         serviceCollection.AddScoped<TradingAppDbContext>();
     }
 }

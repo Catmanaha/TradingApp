@@ -17,10 +17,12 @@ builder.Services.AddAuthorization(options =>
     });
 });
 
+builder.Services.AddTransient<ExceptionHandlingMiddleware>();
 builder.Services.AddTransient<LogMiddleware>();
 
 builder.Services.Configure<LogConfiguration>(builder.Configuration.GetSection("LoggerConfiguration"));
 builder.Services.Configure<StockApiConfiguration>(builder.Configuration.GetSection("StockApiConfiguration"));
+builder.Services.Configure<NewsApiConfiguration>(builder.Configuration.GetSection("NewsApiConfiguration"));
 
 builder.Services.InitDbContext(builder.Configuration, Assembly.GetExecutingAssembly());
 builder.Services.Inject();
@@ -35,6 +37,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseMiddleware<LogMiddleware>();
 
 app.MapControllerRoute(

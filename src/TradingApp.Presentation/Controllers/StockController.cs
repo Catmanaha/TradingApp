@@ -18,77 +18,35 @@ public class StockController : Controller
     public async Task<IActionResult> GetAll(int offset = 0)
     {
 
-        try
+        var stocks = await stockService.GetAllWithOffsetAsync(offset);
+
+        return View(new StocksGetAllViewModel
         {
-            var stocks = await stockService.GetAllWithOffsetAsync(offset);
-
-            return View(new StocksGetAllViewModel
-            {
-                Stocks = stocks,
-                Offset = offset
-            });
-        }
-        catch (Exception ex)
-        {
-            ModelState.AddModelError("Error", ex.Message);
-            return View();
-        }
-
-
+            Stocks = stocks,
+            Offset = offset
+        });
     }
 
     public async Task<IActionResult> Get(string id)
     {
-
-        try
-        {
-            var stock = await stockService.GetByIdAsync(id);
-            return View(stock);
-
-        }
-        catch (Exception ex)
-        {
-            ModelState.AddModelError("Error", ex.Message);
-            return View();
-        }
-
-
+        var stock = await stockService.GetByIdAsync(id);
+        return View(stock);
     }
 
     public async Task<IActionResult> GetPriceHistory(string id)
     {
-        try
-        {
-            var stockPriceHistory = await stockService.GetStockPriceHistory(id);
-            var json = JsonSerializer.Serialize(stockPriceHistory);
+        var stockPriceHistory = await stockService.GetStockPriceHistory(id);
+        var json = JsonSerializer.Serialize(stockPriceHistory);
 
-            return Content(json, "application/json");
-        }
-        catch (Exception ex)
-        {
-            ModelState.AddModelError("Error", ex.Message);
-            return View();
-        }
-
-
+        return Content(json, "application/json");
     }
 
     public async Task<IActionResult> GetOHCL(string id)
     {
-        try
-        {
-            var stockOHCL = await stockService.GetStockOHLC(id);
-            var json = JsonSerializer.Serialize(stockOHCL);
+        var stockOHCL = await stockService.GetStockOHLC(id);
+        var json = JsonSerializer.Serialize(stockOHCL);
 
-            return Content(json, "application/json");
-        }
-        catch (Exception ex)
-        {
-            ModelState.AddModelError("Error", ex.Message);
-            return View();
-        }
-
-
+        return Content(json, "application/json");
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

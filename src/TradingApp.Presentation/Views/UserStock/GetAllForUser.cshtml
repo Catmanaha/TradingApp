@@ -8,7 +8,7 @@
 }
 else
 {
-  <table class="table table-hover table-dark">
+  <table id="myTable" class="table table-hover table-dark table-striped">
     <thead>
       <tr>
         <th style="width: 3em;" scope="col"></th>
@@ -27,8 +27,12 @@ else
           <td>@userStock.StockName</td>
           <td>@userStock.UserStockTotalPrice</td>
           <td>@userStock.StockCount</td>
-          <td><button onclick="redirectToAction('/UserStock/Sell?stockName=@userStock.StockName&userStockId=@userStock.UserStockId')" type="button" class="btn btn-danger">Sell</button></td>
-          <td><button onclick="redirectToAction('/Auction/Sell?stockUuid=@userStock.StockUuid&userStockId=@userStock.UserStockId')" type="button" class="btn btn-danger">Sell on Auction</button></td>
+          <td><button
+              onclick="redirectToAction('/UserStock/Sell?stockName=@userStock.StockName&userStockId=@userStock.UserStockId')"
+              type="button" class="submitbtn">Sell</button></td>
+          <td><button
+              onclick="redirectToAction('/Auction/Sell?stockUuid=@userStock.StockUuid&userStockId=@userStock.UserStockId')"
+              type="button" class="submitbtn">Sell on Auction</button></td>
         </tr>
       }
     </tbody>
@@ -37,4 +41,13 @@ else
 
 @section Scripts {
   <script src="~/js/site.js" asp-append-version="true"></script>
+  <script>
+    $(document).ready(function () {
+      $("#myTable").DataTable({
+        info: false,
+        paging: false,
+      });
+    });
+
+  </script>
 }

@@ -1,0 +1,47 @@
+@model News
+
+<link rel="stylesheet" href="~/css/news.css">
+
+<div class="container">
+
+    <div class="posts">
+        @foreach (var article in Model.Articles)
+        {
+            <div class="post">
+                <div style="background-image: url(@article.ImgUrl); background-size: contain;" class="post__image"></div>
+                <div class="post__content">
+                    <div class="post__inside">
+                        <h3 class="post__title">@article.Title</h3>
+                        <p class="post__excerpt">@article.Description</p>
+                        <button onclick="redirectToAction('@article.Link')" class="btn--accent post__button">
+                            Read more
+                            <i class="fa fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+
+    </div>
+
+</div>
+
+<nav aria-label="Page navigation example">
+    <ul id="paginationUl" style="ml-2" class="pagination justify-content-end">
+        @if (Model.Offset != 0)
+        {
+            <li class="page-item"><a class="page-link" href="?offset=@(Model.Offset - 1)">Previous</a></li>
+        }
+        <li class="page-item"><a class="page-link" href="?offset=0">1</a></li>
+        <li class="page-item"><a class="page-link" href="?offset=1">2</a></li>
+        <li class="page-item"><a class="page-link" href="?offset=2">3</a></li>
+        @if (Model.Offset != 1000)
+        {
+            <li class="page-item"><a class="page-link" href="?offset=@(Model.Offset + 1)">Next</a></li>
+        }
+    </ul>
+</nav>
+
+@section Scripts {
+    <script src="~/js/site.js" asp-append-version="true"></script>
+}

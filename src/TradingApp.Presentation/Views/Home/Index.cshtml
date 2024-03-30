@@ -1,1 +1,84 @@
+@model HomeViewModel
 
+<h1>In this website u are able to buy stocks, sell them on auctions, and see news</h1>
+
+<h2>Top 5 stocks: </h2>
+
+@if (Model.Stocks.Any() == false)
+{
+  <span>No stocks found</span>
+}
+else
+{
+  <table id="stock_table" class="table table-hover table-dark table-striped">
+    <thead>
+      <tr>
+        <th scope="col"></th>
+        <th scope="col">Symbol</th>
+        <th scope="col">Name</th>
+        <th scope="col">Price</th>
+        <th scope="col">Change</th>
+        <th scope="col">24h Volume</th>
+        <th scope="col">Market Capacity</th>
+        <th scope="col"></th>
+      </tr>
+    </thead>
+    <tbody>
+      @foreach (var stock in Model.Stocks)
+      {
+        <tr style="cursor: pointer">
+          <td><img style="height: 3em; width: 3em" src="@stock.IconUrl" alt="@stock.Name"></td>
+          <td>@stock.Symbol</td>
+          <td>@stock.Name</td>
+          <td>@stock.Price</td>
+          <td>@stock.Change</td>
+          <td>@stock._24hVolume</td>
+          <td>@stock.MarketCap</td>
+          <td><button onclick="redirectToAction('/Stock/Get?id=@stock.Uuid')" type="button"
+              class="submitbtn">Enter</button></td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}
+
+<link rel="stylesheet" href="~/css/news.css">
+
+<h2>Recent news</h2>
+
+<div class="container">
+
+    <div class="posts">
+        @foreach (var article in Model.Articles)
+        {
+            <div class="post">
+                <div style="background-image: url(@article.ImgUrl); background-size: contain;" class="post__image"></div>
+                <div class="post__content">
+                    <div class="post__inside">
+                        <h3 class="post__title">@article.Title</h3>
+                        <p class="post__excerpt">@article.Description</p>
+                        <button onclick="redirectToAction('@article.Link')" class="btn--accent post__button">
+                            Read more
+                            <i class="fa fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+
+    </div>
+
+</div>
+
+@section Scripts {
+  <script src="~/js/site.js" asp-append-version="true"></script>
+  <script>
+    $(document).ready(function () {
+      $("#stock_table").DataTable({
+        info: false,
+        paging: false,
+      });
+    });
+
+  </script>
+}

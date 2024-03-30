@@ -8,7 +8,7 @@ namespace TradingApp.Core.Services;
 public interface IUserStockService
 {
     public Task<IEnumerable<UserStockForUser>> GetAllForUser(int id);
-    public Task Sell(SellUserStockDto dto);
-    public Task<UserStock> CreateAsync(UserStockDto userStockDto, User user);
+    public Task<string> Sell(SellUserStockDto dto);
+    public Task<string> CreateAsync(UserStockDto userStockDto, User user);
     public Task<UserStock> GetById(int id);
 }

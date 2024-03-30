@@ -12,7 +12,7 @@
 }
 else
 {
-  <table class="table table-hover table-dark">
+  <table id="myTable" class="table table-hover table-dark table-striped">
     <thead>
       <tr>
         <th scope="col">UserName</th>
@@ -35,7 +35,7 @@ else
           <td>@auction.AuctionStartTime</td>
           <td>@(auction.AuctionEndTime == defaultEndTime ? " " : auction.AuctionEndTime)</td>
           <td><button onclick="redirectToAction('/Auction/Auction?id=@auction.AuctionId')" type="button"
-              class="btn btn-danger">Enter</button></td>
+              class="submitbtn">Enter</button></td>
         </tr>
       }
     </tbody>
@@ -44,4 +44,13 @@ else
 
 @section Scripts {
   <script src="~/js/site.js" asp-append-version="true"></script>
+  <script>
+    $(document).ready(function () {
+      $("#myTable").DataTable({
+        info: false,
+        paging: false,
+      });
+    });
+
+  </script>
 }

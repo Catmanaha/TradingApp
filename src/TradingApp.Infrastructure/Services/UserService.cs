@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using TradingApp.Core.Dtos;
 using TradingApp.Core.Enums;
 using TradingApp.Core.Models;
@@ -162,5 +163,34 @@ public class UserService : IUserService
 
         await roleManager.CreateAsync(userRole);
         await userManager.AddToRoleAsync(user, UserRolesEnum.User.ToString());
+    }
+
+    public async Task<IEnumerable<User>?> GetAllAsync()
+    {
+        return await userManager.Users.ToListAsync();
+    }
+
+    public async Task DeleteAsync(int id)
+    {
+        var user = await GetById(id);
+
+        if (user is null)
+        {
+            throw new NullReferenceException("User cannot be null");
+        }
+
+        await userManager.DeleteAsync(user);
+    }
+
+    public async Task CashIn(ClaimsPrincipal User, double amountToAdd)
+    {
+        if (amountToAdd < 0) {
+            throw new ArgumentException("Amount cannot be negative");
+        }
+
+        var user = await GetUser(User);
+        user.Balance += amountToAdd;
+
+        await userManager.UpdateAsync(user);
     }
 }

@@ -1,0 +1,45 @@
+@model IEnumerable<User>?
+
+<h1>All Users</h1>
+
+@if (Model.Any() == false)
+{
+    <span>No users found</span>
+}
+else
+{
+    <table id="myTable" class="table table-hover table-dark table-striped">
+        <thead>
+            <tr>
+                <th scope="col">UserName</th>
+                <th scope="col">Email</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model)
+            {
+                <tr id="@user.Id" style="cursor: pointer">
+                    <td>@user.UserName</td>
+                    <td>@user.Email</td>
+                    <td><button onclick="deleteUser(@user.Id)" type="button" class="submitbtn">Delete</button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@section Scripts {
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        $(document).ready(function () {
+            $("#myTable").DataTable({
+                info: false,
+                paging: false,
+            });
+        });
+
+        
+
+    </script>
+}

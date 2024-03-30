@@ -25,7 +25,7 @@ public class BidService : IBidService
         this.userManager = userManager;
     }
 
-    public async Task Bid(BidDto dto)
+    public async Task<string> Bid(BidDto dto)
     {
         if (dto is null)
         {
@@ -37,13 +37,15 @@ public class BidService : IBidService
 
         if (highestBid is null && dto.BidAmount < auction.InitialPrice)
         {
-            throw new ArgumentException($"Bid should be more than the initial price '{auction.InitialPrice}'", nameof(auction.InitialPrice));
+            return $"Bid should be more than the initial price '{auction.InitialPrice}'";
         }
 
         if (highestBid is not null && highestBid.BidAmount > dto.BidAmount)
         {
-            throw new ArgumentException($"Bid should be more than the highest bid '{highestBid.BidAmount}'", nameof(highestBid.BidAmount));
+            return $"Bid should be more than the highest bid '{highestBid.BidAmount}'";
         }
+
+        return null;
     }
 
     public async Task CreateAsync(BidDto dto, User user)
@@ -84,7 +86,7 @@ public class BidService : IBidService
             throw new ArgumentException("Id cannot be negative");
         }
 
-        var query = from bid in (await bidRepository.GetAllAsync()).OrderByDescending(g => g.AuctionId)
+        var query = from bid in (await bidRepository.GetAllAsync()).OrderByDescending(g => g.BidTime)
                     join auction in await auctionRepository.GetAllByIdAsync(id) on bid.AuctionId equals auction.Id
                     join user in await userManager.Users.ToListAsync() on bid.UserId equals user.Id
                     select new BidForAuction
