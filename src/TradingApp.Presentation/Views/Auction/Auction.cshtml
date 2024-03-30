@@ -8,7 +8,7 @@
 
 @if (Model.Bids.Any() == false)
 {
-    <span>No stocks found</span>
+    <span>No bids found</span>
 }
 else
 {
@@ -39,7 +39,7 @@ else
     var check = Model.Auction.Status == AuctionStatusEnum.Open ? "disabled" : "enabled";
 }
 
-@if (Model.Auction.Status != AuctionStatusEnum.Closed)
+@if (Model.Auction.Status != AuctionStatusEnum.Closed && Model.CurrentUser.Id != Model.AuctionUser.Id)
 {
     <button onclick="redirectToAction('/Auction/Bid?auctionId=@Model.Auction.Id')" @check type="button"
         class="btn btn-danger">Bid</button>
