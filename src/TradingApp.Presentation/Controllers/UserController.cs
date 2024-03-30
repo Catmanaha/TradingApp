@@ -65,7 +65,13 @@ public class UserController : Controller
             return View();
         }
 
-        await userService.Login(userDto);
+        var result = await userService.Login(userDto);
+
+        if (!string.IsNullOrEmpty(result)) {
+            ModelState.AddModelError("Error", result);
+            return View();
+        }
+
         return RedirectPermanent(userDto.ReturnUrl ?? "/");
     }
 

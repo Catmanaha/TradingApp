@@ -106,7 +106,7 @@ public class UserService : IUserService
         return result;
     }
 
-    public async Task Login(UserLoginDto userDto)
+    public async Task<string> Login(UserLoginDto userDto)
     {
         if (userDto is null)
         {
@@ -117,15 +117,17 @@ public class UserService : IUserService
 
         if (user is null)
         {
-            throw new NullReferenceException("No user with this email found");
+            return "No user with this email found";
         }
 
         var result = await signInManager.PasswordSignInAsync(user, userDto.Password, true, true);
 
         if (result.Succeeded == false)
         {
-            throw new ArgumentException("Incorrect Credentials");
+            return "Incorrect Credentials";
         }
+
+        return null;
     }
 
     public async Task Register(UserRegisterDto userDto)
@@ -156,12 +158,6 @@ public class UserService : IUserService
             throw new AggregateException(exceptions);
         }
 
-        var userRole = new IdentityRole<int>
-        {
-            Name = UserRolesEnum.User.ToString()
-        };
-
-        await roleManager.CreateAsync(userRole);
         await userManager.AddToRoleAsync(user, UserRolesEnum.User.ToString());
     }
 
