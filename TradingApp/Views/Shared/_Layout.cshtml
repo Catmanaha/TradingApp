@@ -2,8 +2,9 @@
 @inject IHttpContextAccessor HttpContextAccessor
 
 @{
-    var LoginVisibilityCheck = HttpContextAccessor.HttpContext.Request.Cookies["UserId"] is not null ? "hidden" : "";
-    var LogoutVisibilityCheck = HttpContextAccessor.HttpContext.Request.Cookies["UserId"] is null ? "hidden" : "";
+    var hasUserCookie = HttpContextAccessor.HttpContext?.Request.Cookies.ContainsKey("UserId") == true;
+    var LoginVisibilityCheck = hasUserCookie ? "hidden" : "";
+    var LogoutVisibilityCheck = hasUserCookie ? "" : "hidden";
 }
 
 
