@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Options;
+using System.Security.Cryptography;
 using TradingApp.Models;
 using TradingApp.Models.Managers;
 using TradingApp.Repositories.Base.Repositories;
@@ -22,44 +22,43 @@ public class LogMiddleware : IMiddleware
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        if (optionsMonitor.CurrentValue.IsLoggerEnabled == false) {
+        if (optionsMonitor.CurrentValue.IsLoggerEnabled == false)
+        {
             await next.Invoke(context);
             return;
         }
 
-        int userId = default;
-        if (context.Request.Cookies["UserId"] is not null)
-        {
-            userId = int.Parse(dataProtector.Unprotect(context.Request.Cookies["UserId"]!));
-        }
-
-        context.Request.EnableBuffering();
-        var requestRead = await new StreamReader(context.Request.Body).ReadToEndAsync();
-        context.Request.Body.Position = 0;
-
-        var originalResponseBody = context.Response.Body;
-
-        using var memoryStream = new MemoryStream();
-
-        context.Response.Body = memoryStream;
-
         await next.Invoke(context);
-
-        context.Response.Body.Seek(0, SeekOrigin.Begin);
-        var responseRead = await new StreamReader(context.Response.Body).ReadToEndAsync();
-        context.Response.Body.Seek(0, SeekOrigin.Begin);
-
-        await context.Response.Body.CopyToAsync(originalResponseBody);
 
         await repository.CreateAsync(new Log
         {
-            UserId = userId,
-            Url = context.Request.GetDisplayUrl(),
+            UserId = TryGetUserId(context),
+            Url = context.Request.Path,
             MethodType = context.Request.Method,
             StatusCode = context.Response.StatusCode,
-            RequestBody = requestRead,
-            ResponseBody = responseRead
+            RequestBody = null,
+            ResponseBody = null,
         });
+    }
 
+    private int TryGetUserId(HttpContext context)
+    {
+        var protectedUserId = context.Request.Cookies["UserId"];
+
+        if (string.IsNullOrWhiteSpace(protectedUserId))
+        {
+            return default;
+        }
+
+        try
+        {
+            return int.TryParse(dataProtector.Unprotect(protectedUserId), out var userId)
+                ? userId
+                : default;
+        }
+        catch (CryptographicException)
+        {
+            return default;
+        }
     }
 }

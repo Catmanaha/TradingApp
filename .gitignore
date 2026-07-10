@@ -373,6 +373,10 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 
+# Local ASP.NET Core configuration can contain database credentials.
+appsettings.Development.json
+!appsettings.Development.example.json
+
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
