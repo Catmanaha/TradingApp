@@ -9,12 +9,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpContextAccessor();
 
-string connectionStringKey = "TradingAppDb";
-string? connectionString = builder.Configuration.GetConnectionString("DefaultConnectionString");
+const string connectionStringKey = "DefaultConnectionString";
+string? connectionString = builder.Configuration.GetConnectionString(connectionStringKey);
 
 if (string.IsNullOrEmpty(connectionString))
 {
-    throw new NullReferenceException($"No connection string found in appsettings.json with a key '{connectionStringKey}'");
+    throw new InvalidOperationException(
+        $"No connection string was configured for '{connectionStringKey}'. " +
+        "Set ConnectionStrings__DefaultConnectionString in the environment."
+    );
 }
 
 builder.Services.Configure<ConnectionManager>(builder.Configuration.GetSection("ConnectionStrings"));
