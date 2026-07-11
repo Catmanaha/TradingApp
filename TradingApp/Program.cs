@@ -6,6 +6,7 @@ using TradingApp.Models.Managers;
 using TradingApp.Repositories;
 using TradingApp.Repositories.Base;
 using TradingApp.Repositories.Base.Repositories;
+using TradingApp.Security;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,13 +14,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddDataProtection();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
-    {
-        options.LoginPath = "/User/Login";
-        options.AccessDeniedPath = "/User/AccessDenied";
-        options.Cookie.Name = "TradingApp.Auth";
-        options.SlidingExpiration = true;
-    });
+    .AddCookie(AuthenticationConfiguration.ConfigureCookie);
 builder.Services.AddAuthorization();
 builder.Services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
 
