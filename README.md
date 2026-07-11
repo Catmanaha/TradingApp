@@ -1,13 +1,25 @@
 # TradingApp
 
-TradingApp is a small ASP.NET Core MVC backend demonstration for storing and
-listing stock reference records in SQL Server. It uses Dapper repositories,
-cookie-based session identification, ASP.NET Core Data Protection, and optional
-request-metadata logging.
+TradingApp is a learning ASP.NET Core MVC application for managing illustrative
+stock reference records in SQL Server. It demonstrates a small backend with
+Dapper repositories, local cookie authentication, metadata-only request
+logging, automated tests and dependency scanning.
 
-This is a learning project, not a trading platform, market-data service, or
-production authentication system. The committed SQL records are illustrative
-fixtures rather than live market data.
+It is not a trading platform, market-data service, low-latency system or
+deployed financial product. The stock rows are illustrative fixtures, not live
+market data.
+
+## What it demonstrates
+
+- ASP.NET Core MVC controllers and Razor views.
+- Repository abstractions over parameterised Dapper queries.
+- SQL Server schema and stock reference-record CRUD.
+- ASP.NET Core cookie authentication with `PasswordHasher<User>` for local use.
+- ASP.NET Core Data Protection for the authentication cookie.
+- Request metadata logging without query strings, request bodies or response
+  bodies.
+- xUnit tests for authentication, route boundaries, stock validation and logging.
+- GitHub Actions Release builds and NuGet vulnerability scans.
 
 ## Architecture
 
@@ -24,63 +36,59 @@ Dapper SQL repositories ----> SQL Server
 metadata-only logging middleware
 ```
 
-The application contains stock, user, and logging repositories. SQL statements
-use Dapper parameters for user-supplied values. The logging middleware records
-the request path, method, response status, and protected user identifier; it
-does not persist query strings or request/response bodies because those values
-can contain credentials or other sensitive data.
-
-## Requirements
-
-- .NET 10 SDK
-- SQL Server reachable from the application
+The application has separate stock, user and logging repositories. User input
+is passed to Dapper as parameters; SQL Server remains an explicit local
+dependency rather than being hidden behind an in-memory substitute.
 
 ## Local setup
 
-Create the database objects with:
+Requirements: .NET 10 SDK and a local SQL Server instance.
 
-- `TradingApp/Assets/Sql/TrandingAppDb.sql`
-- `TradingApp/Assets/Sql/TradingAppDbCreates.sql`
+1. Create a fresh local database using:
 
-Set the connection string outside source control. In PowerShell:
+   - `TradingApp/Assets/Sql/TrandingAppDb.sql`
+   - `TradingApp/Assets/Sql/TradingAppDbCreates.sql`
 
-```powershell
-$env:ConnectionStrings__DefaultConnectionString = "Server=localhost;Database=TradingAppDb;User Id=YOUR_USER;Password=OLD_DATABASE_PASSWORD;TrustServerCertificate=True;"
-dotnet run --project TradingApp/TradingApp.csproj
-```
+2. Supply the connection string through an environment variable or user-secrets:
 
-`TradingApp/appsettings.Development.example.json` documents the expected local
-configuration shape. Do not commit a populated
-`appsettings.Development.json`.
+   ```powershell
+   $env:ConnectionStrings__DefaultConnectionString = "Server=localhost;Database=TradingAppDb;User Id=YOUR_USER;Password=YOUR_PASSWORD;TrustServerCertificate=True;"
+   ```
 
-## Build and dependency checks
+   Never commit a populated `appsettings.Development.json`, connection string,
+   password, publish profile or `.env` file. The checked-in example contains
+   placeholders only.
+
+3. For a disposable local account, set `ASPNETCORE_ENVIRONMENT=Development`,
+   run the app, and use `/User/RegisterDemo`. See
+   [`docs/local-demo-user.md`](docs/local-demo-user.md). The route is disabled
+   outside Development and stores only a password hash.
+
+## Build, test and scan
 
 ```powershell
 dotnet restore TradingApp/TradingApp.csproj
 dotnet build TradingApp/TradingApp.csproj --configuration Release --no-restore
+dotnet test tests/TradingApp.Tests/TradingApp.Tests.csproj --configuration Release
 dotnet list TradingApp/TradingApp.csproj package --vulnerable --include-transitive
 ```
 
-GitHub Actions runs the same build and vulnerability check for pushes and pull
-requests.
+GitHub Actions runs the application and test Release builds, the test suite and
+the application/test dependency vulnerability scans for pushes and pull
+requests. No personal database or Azure credential is required in CI.
 
-## Security limitations
+## Security scope
 
-- The current user table and login query use plaintext passwords. This must be
-  replaced with a slow password-hashing scheme before the authentication flow
-  is used outside local demonstration.
-- The protected user-ID cookie identifies a local demo session but is not a
-  complete authentication and authorization design.
-- No default user credential is seeded. Create local test data deliberately and
-  never reuse a personal password.
-- A previously committed development connection string remains in Git history.
-  Any reused credential must be rotated; deleting the current file does not
-  remove historical commits.
+This is proportionate local/demo authentication, not a production identity
+platform. Stock routes require an authenticated cookie session; login and the
+Development-only demo-user route remain anonymous. Application credentials are
+provided through runtime configuration and are not committed.
 
-## Current limitations
+The repository has multiple historical contributors. Commit history, rather
+than the README, should be used to attribute individual implementation work.
 
-- There is no automated test project yet.
-- Database schema changes are maintained as SQL scripts rather than migrations.
-- Error handling and validation are intentionally limited to the learning scope.
-- This repository includes contributions from multiple authors. Commit history
-  should be used to distinguish individual contributions.
+## Naming recommendation
+
+`TradingApp` is broader than the current scope. `StockReferenceApp` would be a
+more precise recruiter-facing name, but renaming is optional and should only be
+done after checking links, pull requests and any coursework references.
