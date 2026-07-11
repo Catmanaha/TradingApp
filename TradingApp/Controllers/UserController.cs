@@ -21,7 +21,9 @@ public class UserController : Controller
         this.passwordHasher = passwordHasher;
     }
 
+    [HttpPost]
     [Authorize]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
@@ -104,7 +106,7 @@ public class UserController : Controller
     }
 
     [AllowAnonymous]
-    public IActionResult AccessDenied() => Forbid();
+    public IActionResult AccessDenied() => StatusCode(StatusCodes.Status403Forbidden);
 
     private bool IsDevelopment() => HttpContext.RequestServices
         .GetRequiredService<IWebHostEnvironment>().IsDevelopment();

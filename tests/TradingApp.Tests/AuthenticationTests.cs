@@ -11,6 +11,7 @@ using TradingApp.Controllers;
 using TradingApp.Dtos;
 using TradingApp.Models;
 using TradingApp.Repositories.Base.Repositories;
+using TradingApp.Security;
 
 namespace TradingApp.Tests;
 
@@ -87,6 +88,66 @@ public class AuthenticationTests
             ?.GetCustomAttributes(typeof(Microsoft.AspNetCore.Authorization.AllowAnonymousAttribute), true).SingleOrDefault());
     }
 
+    [Fact]
+    public void AccessDeniedReturnsTerminalForbiddenStatus()
+    {
+        var controller = CreateController(new Mock<IUserRepository>().Object, new RecordingAuthenticationService());
+
+        var result = controller.AccessDenied();
+
+        var status = Assert.IsType<StatusCodeResult>(result);
+        Assert.Equal(StatusCodes.Status403Forbidden, status.StatusCode);
+        Assert.IsNotType<ForbidResult>(result);
+    }
+
+    [Fact]
+    public void LogoutRequiresAuthenticationPostAndAntiforgeryValidation()
+    {
+        var method = typeof(UserController).GetMethod(nameof(UserController.Logout), Type.EmptyTypes)!;
+
+        Assert.NotNull(method.GetCustomAttributes(typeof(Microsoft.AspNetCore.Authorization.AuthorizeAttribute), true).SingleOrDefault());
+        Assert.NotNull(method.GetCustomAttributes(typeof(HttpPostAttribute), true).SingleOrDefault());
+        Assert.NotNull(method.GetCustomAttributes(typeof(ValidateAntiForgeryTokenAttribute), true).SingleOrDefault());
+    }
+
+    [Fact]
+    public void LoginAndDevelopmentRegistrationRemainAnonymous()
+    {
+        var login = typeof(UserController).GetMethod(nameof(UserController.Login), new[] { typeof(UserLoginDto) })!;
+        var register = typeof(UserController).GetMethod(nameof(UserController.RegisterDemo), new[] { typeof(UserLoginDto) })!;
+
+        Assert.NotNull(login.GetCustomAttributes(typeof(Microsoft.AspNetCore.Authorization.AllowAnonymousAttribute), true).SingleOrDefault());
+        Assert.NotNull(register.GetCustomAttributes(typeof(Microsoft.AspNetCore.Authorization.AllowAnonymousAttribute), true).SingleOrDefault());
+    }
+
+    [Fact]
+    public void CookieOptionsAreExplicitAndLocalDevelopmentCompatible()
+    {
+        var options = new Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationOptions();
+
+        AuthenticationConfiguration.ConfigureCookie(options);
+
+        Assert.True(options.Cookie.HttpOnly);
+        Assert.Equal(SameSiteMode.Lax, options.Cookie.SameSite);
+        Assert.Equal(CookieSecurePolicy.SameAsRequest, options.Cookie.SecurePolicy);
+        Assert.True(options.SlidingExpiration);
+        Assert.Equal(TimeSpan.FromHours(8), options.ExpireTimeSpan);
+    }
+
+    [Fact]
+    public async Task LogoutSignsOutAndRedirectsToHome()
+    {
+        var auth = new RecordingAuthenticationService();
+        var controller = CreateController(new Mock<IUserRepository>().Object, auth);
+
+        var result = await controller.Logout();
+
+        var redirect = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal("Index", redirect.ActionName);
+        Assert.Equal("Home", redirect.ControllerName);
+        Assert.True(auth.SignedOut);
+    }
+
     private static UserController CreateController(IUserRepository repository, RecordingAuthenticationService auth)
     {
         var services = new ServiceCollection();
@@ -106,6 +167,7 @@ public class AuthenticationTests
     private sealed class RecordingAuthenticationService : IAuthenticationService
     {
         public ClaimsPrincipal? SignedInPrincipal { get; private set; }
+        public bool SignedOut { get; private set; }
 
         public Task<AuthenticateResult> AuthenticateAsync(HttpContext context, string? scheme) =>
             Task.FromResult(AuthenticateResult.NoResult());
@@ -120,6 +182,10 @@ public class AuthenticationTests
             return Task.CompletedTask;
         }
 
-        public Task SignOutAsync(HttpContext context, string? scheme, AuthenticationProperties? properties) => Task.CompletedTask;
+        public Task SignOutAsync(HttpContext context, string? scheme, AuthenticationProperties? properties)
+        {
+            SignedOut = true;
+            return Task.CompletedTask;
+        }
     }
 }
