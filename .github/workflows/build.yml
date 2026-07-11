@@ -22,8 +22,20 @@ jobs:
       - name: Restore
         run: dotnet restore TradingApp/TradingApp.csproj
 
+      - name: Restore tests
+        run: dotnet restore tests/TradingApp.Tests/TradingApp.Tests.csproj
+
       - name: Build
         run: dotnet build TradingApp/TradingApp.csproj --configuration Release --no-restore
 
+      - name: Build tests
+        run: dotnet build tests/TradingApp.Tests/TradingApp.Tests.csproj --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test tests/TradingApp.Tests/TradingApp.Tests.csproj --configuration Release --no-restore --no-build
+
       - name: Check vulnerable packages
         run: dotnet list TradingApp/TradingApp.csproj package --vulnerable --include-transitive
+
+      - name: Check test packages
+        run: dotnet list tests/TradingApp.Tests/TradingApp.Tests.csproj package --vulnerable --include-transitive
