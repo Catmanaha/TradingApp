@@ -1,27 +1,17 @@
 # TradingApp
 
-TradingApp is a learning ASP.NET Core MVC application for managing illustrative
-stock reference records in SQL Server. It demonstrates a small backend with
-Dapper repositories, local cookie authentication, metadata-only request
-logging, automated tests and dependency scanning.
+TradingApp is an ASP.NET Core MVC learning project for managing sample stock records in SQL Server. It is a CRUD application built around Dapper repositories, Razor views, cookie authentication, and request logging. Despite the repository name, it does not place trades or use live market data.
 
-It is not a trading platform, market-data service, low-latency system or
-deployed financial product. The stock rows are illustrative fixtures, not live
-market data.
+This repository has multiple contributors. The commit history is the best source for individual attribution.
 
-## What it demonstrates
+## Main functionality
 
-- ASP.NET Core MVC controllers and Razor views.
-- Repository abstractions over parameterised Dapper queries.
-- SQL Server schema and stock reference-record CRUD.
-- ASP.NET Core cookie authentication with `PasswordHasher<User>` for local use.
-- ASP.NET Core Data Protection for the authentication cookie.
-- Request metadata logging without query strings, request bodies or response
-  bodies.
-- xUnit tests for authentication, route boundaries, stock validation and logging.
-- GitHub Actions Release builds and NuGet vulnerability scans.
-
-## Architecture
+- Create, read, update, and delete stock reference records.
+- Parameterised Dapper queries behind repository interfaces.
+- Local cookie authentication with passwords hashed by `PasswordHasher<User>`.
+- ASP.NET Core Data Protection for authentication cookies.
+- Request logging limited to metadata; query strings and request/response bodies are not stored.
+- Tests for authentication, route access, stock validation, and logging.
 
 ```text
 MVC controllers and Razor views
@@ -36,35 +26,38 @@ Dapper SQL repositories ----> SQL Server
 metadata-only logging middleware
 ```
 
-The application has separate stock, user and logging repositories. User input
-is passed to Dapper as parameters; SQL Server remains an explicit local
-dependency rather than being hidden behind an in-memory substitute.
+## Stack
 
-## Local setup
+- .NET 10 and ASP.NET Core MVC
+- Dapper
+- SQL Server
+- xUnit
+- GitHub Actions
 
-Requirements: .NET 10 SDK and a local SQL Server instance.
+## Run locally
 
-1. Create a fresh local database using:
+1. Create a fresh local database with:
 
    - `TradingApp/Assets/Sql/TrandingAppDb.sql`
    - `TradingApp/Assets/Sql/TradingAppDbCreates.sql`
 
-2. Supply the connection string through an environment variable or user-secrets:
+2. Set the connection string through an environment variable or user-secrets:
 
    ```powershell
    $env:ConnectionStrings__DefaultConnectionString = "Server=localhost;Database=TradingAppDb;User Id=YOUR_USER;Password=YOUR_PASSWORD;TrustServerCertificate=True;"
    ```
 
-   Never commit a populated `appsettings.Development.json`, connection string,
-   password, publish profile or `.env` file. The checked-in example contains
-   placeholders only.
+3. Run the application:
 
-3. For a disposable local account, set `ASPNETCORE_ENVIRONMENT=Development`,
-   run the app, and use `/User/RegisterDemo`. See
-   [`docs/local-demo-user.md`](docs/local-demo-user.md). The route is disabled
-   outside Development and stores only a password hash.
+   ```powershell
+   dotnet run --project TradingApp/TradingApp.csproj
+   ```
 
-## Build, test and scan
+For a disposable local account, set `ASPNETCORE_ENVIRONMENT=Development` and use `/User/RegisterDemo`. The route is disabled outside Development and stores a password hash rather than the submitted password. See [`docs/local-demo-user.md`](docs/local-demo-user.md).
+
+Do not commit a populated `appsettings.Development.json`, connection string, password, publish profile, or `.env` file.
+
+## Build and test
 
 ```powershell
 dotnet restore TradingApp/TradingApp.csproj
@@ -73,22 +66,10 @@ dotnet test tests/TradingApp.Tests/TradingApp.Tests.csproj --configuration Relea
 dotnet list TradingApp/TradingApp.csproj package --vulnerable --include-transitive
 ```
 
-GitHub Actions runs the application and test Release builds, the test suite and
-the application/test dependency vulnerability scans for pushes and pull
-requests. No personal database or Azure credential is required in CI.
+GitHub Actions builds the application and test project, runs the tests, and scans both dependency sets. CI does not need a personal database or Azure credentials.
 
-## Security scope
+## Still to do
 
-This is proportionate local/demo authentication, not a production identity
-platform. Stock routes require an authenticated cookie session; login and the
-Development-only demo-user route remain anonymous. Application credentials are
-provided through runtime configuration and are not committed.
-
-The repository has multiple historical contributors. Commit history, rather
-than the README, should be used to attribute individual implementation work.
-
-## Naming recommendation
-
-`TradingApp` is broader than the current scope. `StockReferenceApp` would be a
-more precise recruiter-facing name, but renaming is optional and should only be
-done after checking links, pull requests and any coursework references.
+- Add SQL Server integration tests; CI currently tests without provisioning a database.
+- Replace the SQL setup scripts with migrations.
+- Use HTTPS for any deployment outside local development.
