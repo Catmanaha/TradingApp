@@ -61,6 +61,8 @@ BenchmarkDotNet.Artifacts/
 project.lock.json
 project.fragment.lock.json
 artifacts/
+TestResults/
+*.trx
 
 # ASP.NET Scaffolding
 ScaffoldingReadMe.txt
@@ -376,6 +378,11 @@ MigrationBackup/
 # Local ASP.NET Core configuration can contain database credentials.
 appsettings.Development.json
 !appsettings.Development.example.json
+
+# Local environment files
+.env
+.env.*
+!.env.example
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
