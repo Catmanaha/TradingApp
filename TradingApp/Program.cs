@@ -1,4 +1,7 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using TradingApp.Middlewares;
+using TradingApp.Models;
 using TradingApp.Models.Managers;
 using TradingApp.Repositories;
 using TradingApp.Repositories.Base;
@@ -8,6 +11,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddDataProtection();
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/User/Login";
+        options.AccessDeniedPath = "/User/AccessDenied";
+        options.Cookie.Name = "TradingApp.Auth";
+        options.SlidingExpiration = true;
+    });
+builder.Services.AddAuthorization();
+builder.Services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
 
 const string connectionStringKey = "DefaultConnectionString";
 string? connectionString = builder.Configuration.GetConnectionString(connectionStringKey);
@@ -42,6 +56,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseMiddleware<LogMiddleware>();

@@ -1,6 +1,4 @@
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Options;
-using System.Security.Cryptography;
 using TradingApp.Models;
 using TradingApp.Models.Managers;
 using TradingApp.Repositories.Base.Repositories;
@@ -11,13 +9,11 @@ public class LogMiddleware : IMiddleware
 {
     private readonly ILogRepository repository;
     private readonly IOptionsMonitor<LogManager> optionsMonitor;
-    private readonly IDataProtector dataProtector;
 
-    public LogMiddleware(ILogRepository repository, IDataProtectionProvider dataProtectionProvider, IOptionsMonitor<LogManager> optionsMonitor)
+    public LogMiddleware(ILogRepository repository, IOptionsMonitor<LogManager> optionsMonitor)
     {
         this.repository = repository;
         this.optionsMonitor = optionsMonitor;
-        this.dataProtector = dataProtectionProvider.CreateProtector("IdentityProtection");
     }
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
@@ -41,24 +37,14 @@ public class LogMiddleware : IMiddleware
         });
     }
 
-    private int TryGetUserId(HttpContext context)
+    private static int TryGetUserId(HttpContext context)
     {
-        var protectedUserId = context.Request.Cookies["UserId"];
-
-        if (string.IsNullOrWhiteSpace(protectedUserId))
+        var userId = context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrWhiteSpace(userId))
         {
             return default;
         }
 
-        try
-        {
-            return int.TryParse(dataProtector.Unprotect(protectedUserId), out var userId)
-                ? userId
-                : default;
-        }
-        catch (CryptographicException)
-        {
-            return default;
-        }
+        return int.TryParse(userId, out var parsedUserId) ? parsedUserId : default;
     }
 }

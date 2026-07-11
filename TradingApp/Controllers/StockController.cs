@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TradingApp.Dtos;
 using TradingApp.Models;
@@ -5,6 +6,7 @@ using TradingApp.Repositories.Base;
 
 namespace TradingApp.Controllers;
 
+[Authorize]
 public class StockController : Controller
 {
     private readonly IStockRepository repository;

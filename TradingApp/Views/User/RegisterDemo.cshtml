@@ -1,0 +1,20 @@
+@model TradingApp.Dtos.UserLoginDto
+
+<h1>Create local demo user</h1>
+
+<p>This form is available only when <code>ASPNETCORE_ENVIRONMENT=Development</code>.</p>
+<span class="text-danger">@ViewData["Error"]</span>
+
+<form asp-action="RegisterDemo" method="post">
+    @Html.AntiForgeryToken()
+    <div class="form-group">
+        <label asp-for="Email">Email</label>
+        <input asp-for="Email" type="email" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label asp-for="Password">Password</label>
+        <input asp-for="Password" type="password" class="form-control" required minlength="12" />
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">Create user</button>
+</form>

@@ -2,9 +2,7 @@
 @inject IHttpContextAccessor HttpContextAccessor
 
 @{
-    var hasUserCookie = HttpContextAccessor.HttpContext?.Request.Cookies.ContainsKey("UserId") == true;
-    var LoginVisibilityCheck = hasUserCookie ? "hidden" : "";
-    var LogoutVisibilityCheck = hasUserCookie ? "" : "hidden";
+    var isAuthenticated = User.Identity?.IsAuthenticated == true;
 }
 
 
@@ -30,13 +28,19 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item" @LoginVisibilityCheck>
+                        @if (!isAuthenticated)
+                        {
+                        <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Login">Login</a>
                         </li>
-                        <li class="nav-item" @LogoutVisibilityCheck>
+                        }
+                        @if (isAuthenticated)
+                        {
+                        <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="User"
                                 asp-action="Logout">Logout</a>
                         </li>
+                        }
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Stock"
                                 asp-action="GetAll">Stocks</a>
