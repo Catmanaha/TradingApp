@@ -17,18 +17,24 @@ public class UserSqlRepository : IUserRepository
         this.connection = new SqlConnection(connectionManager.Value.DefaultConnectionString);
     }
 
-    public async Task<User?> LoginAsync(string? email, string? password)
+    public async Task<User?> GetByEmailAsync(string email)
     {
         var result = await connection.QueryFirstOrDefaultAsync<User>(@"
                     select * from Users
-                    where Email = @email and Password = @password",
+                    where Email = @email",
                     new
                     {
-                        email,
-                        password
+                        email
                     });
 
         return result;
 
+    }
+
+    public async Task<int> CreateAsync(User user)
+    {
+        return await connection.ExecuteAsync(@"
+            insert into Users (Email, Name, Surname, PasswordHash)
+            values (@Email, @Name, @Surname, @PasswordHash)", user);
     }
 }
